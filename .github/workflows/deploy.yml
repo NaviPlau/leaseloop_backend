@@ -21,9 +21,22 @@ jobs:
           username: ${{ secrets.VSERVER_USER }}
           key: ${{ secrets.VSERVER_SSH_KEY }}
           source: "."
-          target: "/home/${{ secrets.VSERVER_USER }}/projects/leaseloop_backend"
+          target: "/projects/leaseloop_backend"
           overwrite: true
           strip_components: 0
+
+      - name: Write full .env file from single GitHub Secret
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VSERVER_HOST }}
+          username: ${{ secrets.VSERVER_USER }}
+          key: ${{ secrets.VSERVER_SSH_KEY }}
+          script: |
+            cd /projects/leaseloop_backend
+            echo "📦 Writing full .env file from ENV_FILE secret..."
+            cat > .env << 'EOF'
+            ${{ secrets.ENV_CONFIG }}
+            EOF
 
       - name: SSH into server and rebuild only web container
         uses: appleboy/ssh-action@v1.0.0
@@ -32,12 +45,12 @@ jobs:
           username: ${{ secrets.VSERVER_USER }}
           key: ${{ secrets.VSERVER_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.VSERVER_USER }}/projects/leaseloop_backend
+            cd /projects/leaseloop_backend
             echo "🛑 Stopping running web container..."
-            docker compose stop web
+            docker compose stop web || true
 
             echo "🧹 Removing old web container..."
-            docker compose rm -f web
+            docker compose rm -f web || true
 
             echo "🔨 Rebuilding web service..."
             docker compose build web
