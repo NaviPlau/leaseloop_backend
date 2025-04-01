@@ -1,5 +1,5 @@
 SECRET_KEY = 
-
+ALLOWED_HOSTS=127.0.0.1,0.0.0.0,<your-server-ip-or-domain>
 
 DB_NAME = 
 DB_USER = 
