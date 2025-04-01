@@ -17,8 +17,8 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
-# Expose port 8020 so the application can be accessed externally
-EXPOSE 8020
+# Expose port 8030 so the application can be accessed externally
+EXPOSE 8030
 
 # Use entrypoint.sh as the startup command
 ENTRYPOINT ["./entrypoint.sh"]
