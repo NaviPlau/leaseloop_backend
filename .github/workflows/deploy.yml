@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04.2
 
     steps:
       - name: Checkout Code
@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.VSERVER_USER }}
           key: ${{ secrets.VSERVER_SSH_KEY }}
           source: "."
-          target: "/home/${{ secrets.VSERVER_USER }}/myproject"
+          target: "/home/${{ secrets.VSERVER_USER }}/projects/leaseloop_backend"
           overwrite: true
           strip_components: 0
 
@@ -32,7 +32,7 @@ jobs:
           username: ${{ secrets.VSERVER_USER }}
           key: ${{ secrets.VSERVER_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.VSERVER_USER }}/myproject
+            cd /home/${{ secrets.VSERVER_USER }}//projects/leaseloop_backend
             echo "🛑 Stopping running web container..."
             docker compose stop web
 
