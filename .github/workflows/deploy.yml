@@ -32,7 +32,7 @@ jobs:
           username: ${{ secrets.VSERVER_USER }}
           key: ${{ secrets.VSERVER_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.VSERVER_USER }}//projects/leaseloop_backend
+            cd /home/${{ secrets.VSERVER_USER }}/projects/leaseloop_backend
             echo "🛑 Stopping running web container..."
             docker compose stop web
 
