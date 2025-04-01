@@ -1,0 +1,18 @@
+SECRET_KEY = 
+
+
+DB_NAME = 
+DB_USER = 
+DB_PASSWORD = 
+DB_HOST = 
+DB_PORT = 
+
+
+======================
+Docker/Postgres DB
+======================
+DOCKER_DB_NAME=
+DOCKER_DB_USER=
+DOCKER_DB_PASSWORD=
+DOCKER_DB_HOST=
+DOCKER_DB_PORT=
