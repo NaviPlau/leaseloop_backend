@@ -33,5 +33,5 @@ END
 
 
 echo "Postgresql migrations finished – starting Gunicorn..."
-# start gunicorn on port 8020
-exec gunicorn leaseloop_backend.wsgi:application --bind 0.0.0.0:8020
+# start gunicorn on port 8030
+exec gunicorn leaseloop_backend.wsgi:application --bind 0.0.0.0:8030
