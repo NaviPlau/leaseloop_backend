@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn leaseloop_backend.wsgi:application --bind 0.0.0.0:8030
+    env_file:
+      - .env
+    ports:
+      - "8030:8030"
+    depends_on:
+      - db
+    volumes:
+      - static_volume:/app/static
+    restart: always
+
+  db:
+    image: postgres:latest
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
+  static_volume:
