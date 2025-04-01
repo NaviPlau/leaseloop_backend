@@ -2,14 +2,21 @@
 set -e
 
 echo "⏳ Waiting for PostgreSQL at db:5432..."
-# wait for postgreQGL Service container: db Port : 5432
-for i in {1..60}; do if nc -z db 5432; 
-then echo "✅ PostgreSQL is up!" break fi echo "⏱ Waiting for db... ($i/60)" sleep 1 
+
+# Warte maximal 60 Sekunden auf PostgreSQL
+for i in {1..60}; do
+  if nc -z db 5432; then
+    echo "✅ PostgreSQL is up!"
+    break
+  fi
+  echo "⏱ Waiting for db... ($i/60)"
+  sleep 1
 done
 
+# Abbrechen, wenn DB nach 60s nicht erreichbar ist
 if ! nc -z db 5432; then
-    echo "❌ PostgreSQL is not available after 60 seconds. Exiting."
-    exit 1
+  echo "❌ PostgreSQL is not available after 60 seconds. Exiting."
+  exit 1
 fi
 
 echo "PostgreSQL is up – starting migrations..."
