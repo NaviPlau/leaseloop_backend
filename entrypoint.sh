@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Waiting for postgres to connect ..."
+echo "⏳ Waiting for PostgreSQL at db:5432..."
 # wait for postgreQGL Service container: db Port : 5432
-while ! nc -z db 5432; do
-  sleep 0.1
+for i in {1..60}; do if nc -z db 5432; 
+then echo "✅ PostgreSQL is up!" break fi echo "⏱ Waiting for db... ($i/60)" sleep 1 
 done
 
-echo "PostgreSQL is active"
+if ! nc -z db 5432; then
+    echo "❌ PostgreSQL is not available after 60 seconds. Exiting."
+    exit 1
+fi
+
+echo "PostgreSQL is up – starting migrations..."
 
 python manage.py collectstatic --noinput
 python manage.py makemigrations
