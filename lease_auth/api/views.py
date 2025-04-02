@@ -69,3 +69,29 @@ class ActivateAccountView(APIView):
                 return Response({"error": "Activation link is invalid or has expired."}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({"error": "Invalid user."}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """
+        Authenticate a user using email and password.
+        """
+        username = request.data.get('email')  
+        password = request.data.get('password')
+        try:
+            user = User.objects.get(username=username)
+            if not user.check_password(password):
+                return Response({"message": "Invalid username or password."}, status=status.HTTP_401_UNAUTHORIZED)
+            if not user.is_active:
+                return Response({"message": "You still didn't activate your account."}, status=status.HTTP_403_FORBIDDEN)
+
+            token, _ = Token.objects.get_or_create(user=user)
+
+            return Response(
+                {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "token": token.key},
+                status=status.HTTP_200_OK
+            )
+        except User.DoesNotExist:
+            return Response({"message": "Invalid username or password."}, status=status.HTTP_401_UNAUTHORIZED)
