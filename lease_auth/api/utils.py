@@ -27,3 +27,30 @@ def send_welcome_email(user_email, user_name, activation_link):
     )
     email.attach_alternative(html_content, "text/html") 
     email.send()
+
+
+def send_password_reset_email(user_email, user_name, reset_link):
+    """
+    Sends a password reset email to a user with a reset link.
+
+    Args:
+        user_email (str): The user's email address.
+        user_name (str): The user's name.
+        reset_link (str): The link to reset the user's password.
+    """
+    context = {
+        'user_name': user_name,
+        'reset_link': reset_link,
+        'STATIC_URL': staticfiles_storage.url(''),
+    }
+    html_content = render_to_string('emails/reset_password_email.html', context)
+    text_content = f"Hello {user_name},\n\nYou can reset your password here: {reset_link}"
+
+    email = EmailMultiAlternatives(
+        subject="Reset Your LeaseLoop Password",
+        body=text_content,
+        from_email="noreply@lease-loop.com",
+        to=[user_email],
+    )
+    email.attach_alternative(html_content, "text/html")
+    email.send()
