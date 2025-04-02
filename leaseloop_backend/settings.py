@@ -27,7 +27,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-allowed_hosts = os.getenv("ALLOWED_HOSTS", "localhost") 
+allowed_hosts = os.getenv("ALLOWED_HOSTS", "127.0.0.1") 
 ALLOWED_HOSTS = allowed_hosts.split(",")
 
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'lease_auth'
 ]
 
 MIDDLEWARE = [
@@ -66,12 +67,13 @@ ROOT_URLCONF = 'leaseloop_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -149,6 +151,18 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static/')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+try:
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', 465))
+except ValueError:
+    EMAIL_PORT = 465
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
