@@ -18,6 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('auth/', include('lease_auth.api.urls')),
+    path('lease-loop/admin/', admin.site.urls),
+    path('lease-loop/auth/', include('lease_auth.api.urls')),
 ]
