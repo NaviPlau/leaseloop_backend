@@ -27,9 +27,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-allowed_hosts = os.getenv("ALLOWED_HOSTS", "127.0.0.1") 
-ALLOWED_HOSTS = allowed_hosts.split(",")
-
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -108,6 +105,11 @@ else:
         }
     }
 
+if USE_SQLITE:
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+else:
+    allowed_hosts = os.getenv("ALLOWED_HOSTS", "127.0.0.1") 
+    ALLOWED_HOSTS = allowed_hosts.split(",")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -155,6 +157,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "https://lease-loop.com",
+    "http://localhost:4200",
 ]
 
 EMAIL_BACKEND = os.getenv(
