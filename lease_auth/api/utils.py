@@ -2,6 +2,9 @@
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.staticfiles.storage import staticfiles_storage
+from lease_auth.models import LoginToken, PasswordResetToken
+from django.utils.timezone import now
+from datetime import timedelta
 
 def send_welcome_email(user_email, user_name, activation_link):
     """
@@ -54,3 +57,8 @@ def send_password_reset_email(user_email, user_name, reset_link):
     )
     email.attach_alternative(html_content, "text/html")
     email.send()
+
+
+def clean_expired_tokens():
+    LoginToken.objects.filter(created_at__lt=now() - timedelta(days=7)).delete()
+    PasswordResetToken.objects.filter(created_at__lt=now() - timedelta(minutes=15)).delete()
