@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'lease_auth',
     'properties',
     'units',
-    'clients'
+    'clients',
+    'services',
 ]
 
 MIDDLEWARE = [
