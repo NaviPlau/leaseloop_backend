@@ -23,4 +23,5 @@ urlpatterns = [
     path('lease-loop/api/', include('properties.urls')), 
     path('lease-loop/api/', include('units.urls')),
     path('lease-loop/api/', include('clients.urls')),
+    path('lease-loop/api/', include('services.urls')),
 ]
