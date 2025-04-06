@@ -20,4 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('lease-loop/admin/', admin.site.urls),
     path('lease-loop/auth/', include('lease_auth.api.urls')),
+    path('lease-loop/api/', include('properties.urls')), 
+    path('lease-loop/api/', include('units.urls')),
 ]

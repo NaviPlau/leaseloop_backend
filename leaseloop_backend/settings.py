@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'lease_auth'
+    'lease_auth',
+    'properties',
+    'units',
 ]
 
 MIDDLEWARE = [
