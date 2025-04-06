@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'clients',
     'services',
     'bookings',
+    'promocodes',
 ]
 
 MIDDLEWARE = [
