@@ -10,5 +10,5 @@ class UnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Unit
         fields = [
-            'id', 'property', 'property_id', 'name', 'description', 'capacity', 'price_per_night'
+            'id', 'property', 'property_id', 'name', 'description', 'capacity', 'price_per_night', 'status'
         ]
