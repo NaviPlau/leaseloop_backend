@@ -18,8 +18,8 @@ class PropertyImage(models.Model):
     property = models.ForeignKey(
         Property, on_delete=models.CASCADE, related_name='images'
     )
-    image_url = models.URLField(max_length=500)
-    altText = models.CharField(max_length=255, blank=True)
+    image = models.FileField(upload_to='property_images/') #define the upload path
+    alt_text = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
