@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from .models import Property
 from .serializers import PropertySerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+from .serializers import PropertyImageSerializer
 
 
 class PropertyAPIView(APIView):
@@ -35,7 +37,7 @@ class PropertyAPIView(APIView):
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
+    def post(self, request, format = None):
         """
         Creates a new property for the logged-in user.
         """
@@ -45,7 +47,7 @@ class PropertyAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, pk=None):
+    def patch(self, request, pk=None, format = None):
         """
         Updates a property if the user is the owner.
         """
@@ -66,7 +68,7 @@ class PropertyAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk=None):
+    def delete(self, request, pk=None, format = None):
         """
         Deletes a property if the user is the owner.
         """
@@ -83,3 +85,15 @@ class PropertyAPIView(APIView):
 
         property_obj.delete()
         return Response({'message': 'Property successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class PropertyImageUploadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None):
+        serializer = PropertyImageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

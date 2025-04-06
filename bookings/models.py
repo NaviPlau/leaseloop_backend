@@ -2,7 +2,8 @@ from django.db import models
 from clients.models import Client
 from services.models import Service
 from promocodes.models import Promocodes
-from units.models import Unit  # falls du ein Unit-Modell hast
+from units.models import Unit 
+
 
 class Booking(models.Model):
     STATUS_CHOICES = (
@@ -11,7 +12,7 @@ class Booking(models.Model):
         ('cancelled', 'Cancelled'),
     )
 
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)  # ForeignKey statt CharField
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE) 
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     check_in = models.DateField()
     check_out = models.DateField()
