@@ -4,12 +4,10 @@ from rest_framework import status, permissions
 from .models import Unit
 from properties.models import Property
 from .serializers import UnitSerializer
-from rest_framework.authentication import TokenAuthentication
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 
 class UnitAPIView(APIView):
-    #authentication_classes = [TokenAuthentication]
     #permission_classes = [permissions.IsAuthenticated]
     permission_classes = [AllowAny]
     def get(self, request, pk=None, property_id=None):
