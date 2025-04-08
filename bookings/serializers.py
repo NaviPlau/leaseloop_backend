@@ -5,10 +5,12 @@ from services.models import Service
 from clients.serializers import ClientSerializer
 from units.serializers import UnitSerializer
 from services.serializers import ServiceSerializer
+from promocodes.serializers import PromocodesSerializer
 class BookingSerializer(serializers.ModelSerializer):
     client = ClientSerializer(read_only=True)
     unit = UnitSerializer(read_only=True)
     services = ServiceSerializer(read_only=True, many=True)
+    promo_code = PromocodesSerializer(read_only=True)
     class Meta:
         model = Booking
         fields = [
@@ -16,4 +18,4 @@ class BookingSerializer(serializers.ModelSerializer):
             'deposit_paid', 'deposit_amount', 'status', 'services', 'promo_code',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['unit', 'client', 'created_at', 'updated_at', 'services', 'promo_code']
+        read_only_fields = ['unit', 'client', 'created_at', 'updated_at', 'services', 'promo_code' ]
