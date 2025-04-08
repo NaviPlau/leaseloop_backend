@@ -28,6 +28,7 @@ urlpatterns = [
     path('lease-loop/api/', include('services.urls')),
     path('lease-loop/api/', include('promocodes.urls')),
     path('lease-loop/api/', include('bookings.urls')),
+    path('lease-loop/api/', include('base_info.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
