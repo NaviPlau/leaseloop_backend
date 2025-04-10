@@ -15,7 +15,7 @@ class ClientAPIView(APIView):
         if pk:
             client_obj = get_object_or_404(Client, pk=pk)
             
-            if client_obj.userId != request.user:
+            if client_obj.user != request.user:
                 return Response(
                     {'error': 'Not authorized to see this client.'},
                     status=status.HTTP_403_FORBIDDEN
@@ -25,14 +25,14 @@ class ClientAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         # List all clients of the user
-        clients = Client.objects.filter(userId=request.user).order_by('-created_at')
+        clients = Client.objects.filter(user=request.user).order_by('-created_at')
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
     def post(self, request):
-        serializer = ClientSerializer(data=request.data)
+        serializer = ClientSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(userId=request.user)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
@@ -42,7 +42,7 @@ class ClientAPIView(APIView):
         
         client_obj = get_object_or_404(Client, pk=pk)
         
-        if client_obj.userId != request.user:
+        if client_obj.user != request.user:
             return Response(
                 {'error': 'Not authorized to edit this client.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -60,7 +60,7 @@ class ClientAPIView(APIView):
         
         client_obj = get_object_or_404(Client, pk=pk)
         
-        if client_obj.userId != request.user:
+        if client_obj.user != request.user:
             return Response(
                 {'error': 'Not authorized to delete this client.'},
                 status=status.HTTP_403_FORBIDDEN
