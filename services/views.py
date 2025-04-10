@@ -17,7 +17,7 @@ class ServiceAPIView(APIView):
         if pk:
             service_obj = get_object_or_404(Service, pk=pk)
 
-            if service_obj.proertyId.owner != request.user:
+            if service_obj.proerty.owner != request.user:
                 return Response(
                     {'error': 'Not authorized, to see this service.'},
                     status=status.HTTP_403_FORBIDDEN
@@ -64,7 +64,7 @@ class ServiceAPIView(APIView):
         if not pk:
             return Response({"error": "Service-ID requiered."}, status=status.HTTP_400_BAD_REQUEST)
         service = get_object_or_404(Service, pk=pk)
-        if service.proertyId.owner != request.user:
+        if service.proerty.owner != request.user:
             return Response({"error": "Not authorized to edit this service."}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = ServiceSerializer(service, data=request.data, partial=True)
@@ -87,7 +87,7 @@ class ServiceAPIView(APIView):
         if not pk:
             return Response({"error": "Service-ID requiered."}, status=status.HTTP_400_BAD_REQUEST)
         service = get_object_or_404(Service, pk=pk)
-        if service.proertyId.owner != request.user:
+        if service.property.owner != request.user:
             return Response({"error": "Not authorized to delete this service."}, status=status.HTTP_403_FORBIDDEN)
         service.delete()
         return Response({"message": f"Service {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
