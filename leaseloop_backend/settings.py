@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'bookings',
     'promocodes',
     'base_info',
+    'addresses',
 ]
 
 MIDDLEWARE = [
