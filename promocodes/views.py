@@ -22,7 +22,7 @@ class PromocodesAPIView(APIView):
         """
         if pk:
             # Fetch the specific promocode by its ID
-            promocode_obj = get_object_or_404(Promocode, pk=pk)
+            promocode_obj = get_object_or_404(Promocodes, pk=pk)
             serializer = PromocodesSerializer(promocode_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -37,7 +37,7 @@ class PromocodesAPIView(APIView):
         """
         serializer = PromocodesSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner_id=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -48,7 +48,7 @@ class PromocodesAPIView(APIView):
         if not pk:
             return Response({'error': 'Promocode-ID requeried.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        promocode_obj = get_object_or_404(Promocode, pk=pk)
+        promocode_obj = get_object_or_404(Promocodes, pk=pk)
         serializer = PromocodesSerializer(promocode_obj, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -62,6 +62,6 @@ class PromocodesAPIView(APIView):
         if not pk:
             return Response({'error': 'Promocode-ID requeried.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        promocode_obj = get_object_or_404(Promocode, pk=pk)
+        promocode_obj = get_object_or_404(Promocodes, pk=pk)
         promocode_obj.delete()
         return Response({'message': 'Promocode successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
