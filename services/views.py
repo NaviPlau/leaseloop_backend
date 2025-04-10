@@ -64,7 +64,7 @@ class ServiceAPIView(APIView):
         if not pk:
             return Response({"error": "Service-ID requiered."}, status=status.HTTP_400_BAD_REQUEST)
         service = get_object_or_404(Service, pk=pk)
-        if service.proerty.owner != request.user:
+        if service.property.owner != request.user:
             return Response({"error": "Not authorized to edit this service."}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = ServiceSerializer(service, data=request.data, partial=True)
