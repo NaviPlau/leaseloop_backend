@@ -41,10 +41,11 @@ class PropertyAPIView(APIView):
         """
         Creates a new property for the logged-in user.
         """
-        serializer = PropertySerializer(data=request.data)
+        serializer = PropertySerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(owner=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk=None, format = None):
@@ -62,7 +63,7 @@ class PropertyAPIView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        serializer = PropertySerializer(property_obj, data=request.data, partial=True)
+        serializer = PropertySerializer(property_obj, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

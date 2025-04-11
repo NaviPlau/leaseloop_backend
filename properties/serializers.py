@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Property, PropertyImage
 from units.serializers import UnitSerializer
+from addresses.models import Address
+from addresses.serializers import AddressSerializer
+import json
 
 class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,6 +13,7 @@ class PropertyImageSerializer(serializers.ModelSerializer):
 class PropertySerializer(serializers.ModelSerializer):
     images = PropertyImageSerializer(many=True, read_only=True)
     units = UnitSerializer(many=True, read_only=True)
+    address = AddressSerializer()
     class Meta:
         model = Property
         fields = [
@@ -19,3 +23,17 @@ class PropertySerializer(serializers.ModelSerializer):
         read_only_fields = ['owner']
 
 
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        address = Address.objects.create(**address_data)
+        user = self.context['request'].user
+        validated_data['owner'] = user
+        return Property.objects.create(address=address, **validated_data)
+
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address', None)
+        if address_data:
+            for attr, value in address_data.items():
+                setattr(instance.address, attr, value)
+            instance.address.save()
+        return super().update(instance, validated_data)
