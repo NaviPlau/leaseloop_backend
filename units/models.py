@@ -31,4 +31,4 @@ class UnitImage(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Image for {self.property.name}"
+        return f"Image for {self.unit.name}"

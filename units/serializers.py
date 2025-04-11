@@ -23,3 +23,14 @@ class UnitSerializer(serializers.ModelSerializer):
         property_obj = validated_data.pop('property_id')
         unit = Unit.objects.create(property=property_obj, **validated_data)
         return unit
+    
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.max_capacity = validated_data.get('max_capacity', instance.max_capacity)
+        instance.price_per_extra_person = validated_data.get('price_per_extra_person', instance.price_per_extra_person)
+        instance.capacity = validated_data.get('capacity', instance.capacity)
+        instance.price_per_night = validated_data.get('price_per_night', instance.price_per_night)
+        instance.status = validated_data.get('status', instance.status)
+        instance.save()
+        return instance

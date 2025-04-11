@@ -111,8 +111,20 @@ class UnitImageView(APIView):
     def delete(self, request, pk):
         image = get_object_or_404(UnitImage, pk=pk)
         
-        if image.property.owner != request.user:
+        if image.unit.property.owner!= request.user:
             return Response({'error': 'Not authorized to delete this image.'}, status=status.HTTP_403_FORBIDDEN)
 
         image.delete()
         return Response({'message': 'Image deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+    
+    def patch(self, request, pk):
+        image = get_object_or_404(UnitImage, pk=pk)
+        
+        if image.unit.property.owner != request.user:
+            return Response({'error': 'Not authorized to edit this image.'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = UnitImageSerializer(image, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
