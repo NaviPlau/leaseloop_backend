@@ -1,11 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .models import Unit
+from .models import Unit, UnitImage
 from properties.models import Property
-from .serializers import UnitSerializer
+from .serializers import UnitSerializer, UnitImageSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class UnitAPIView(APIView):
     #permission_classes = [permissions.IsAuthenticated]
@@ -45,11 +46,11 @@ class UnitAPIView(APIView):
         """
         serializer = UnitSerializer(data=request.data)
         if serializer.is_valid():
-            property_id = serializer.validated_data['property'].id
+            property_id = serializer.validated_data['property_id'].id
             if Property.objects.filter(id=property_id, owner=request.user).exists():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response({"error": " Not autorisiert to create unit for this property."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Not authorized to create unit for this property."}, status=status.HTTP_403_FORBIDDEN)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk=None):
@@ -94,3 +95,24 @@ class UnitAPIView(APIView):
 
         unit.delete()
         return Response({"message": f"Unit {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class UnitImageView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None):
+        serializer = UnitImageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        image = get_object_or_404(UnitImage, pk=pk)
+        
+        if image.property.owner != request.user:
+            return Response({'error': 'Not authorized to delete this image.'}, status=status.HTTP_403_FORBIDDEN)
+
+        image.delete()
+        return Response({'message': 'Image deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)

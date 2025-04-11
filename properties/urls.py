@@ -5,5 +5,5 @@ urlpatterns = [
     path('properties/', PropertyAPIView.as_view()),
     path('properties/<int:pk>/', PropertyAPIView.as_view()),
     path('property-images/', PropertyImageUploadView.as_view(), name='property-image-upload'),
-    path('property-images/<int:pk>/', PropertyImageUploadView.as_view(), name='property-image-delete'),
+    path('property-image/<int:pk>/', PropertyImageUploadView.as_view(), name='property-image-delete'),
 ]
