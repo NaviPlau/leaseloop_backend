@@ -6,7 +6,7 @@ class Service(models.Model):
         ('per_day', 'Per Day'),
     ]
     name = models.CharField(max_length=200)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.FloatField(default=0.0)
     type = models.CharField(max_length=20, choices=STATUS_CHOICES, default='one_time')
     property = models.ForeignKey(
         'properties.Property', on_delete=models.CASCADE, related_name='services'

@@ -12,10 +12,10 @@ class Unit(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     capacity = models.PositiveIntegerField()
-    price_per_night = models.DecimalField(max_digits=8, decimal_places=2)
+    price_per_night = models.FloatField(default=0.0)
     status= models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
     max_capacity = models.PositiveIntegerField(default=1)
-    price_per_extra_person = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    price_per_extra_person = models.FloatField(default=0.0)
 
 
     def __str__(self):
