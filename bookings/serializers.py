@@ -18,9 +18,7 @@ class BookingSerializer(serializers.ModelSerializer):
     unit = serializers.PrimaryKeyRelatedField(
         queryset=Unit.objects.all()
     )
-    client = serializers.PrimaryKeyRelatedField(
-        queryset=Client.objects.all()
-    )
+    client = ClientSerializer(read_only=True)
 
     class Meta:
         model = Booking
