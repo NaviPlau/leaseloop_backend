@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Invoice No. {{ invoice.id }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .header {
+        text-align: center;
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      .table th,
+      .table td {
+        border: 1px solid #ccc;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>Invoice</h2>
+      <p>Number: {{ invoice.id }}</p>
+      <p>Created at: {{ invoice.generated_at|date:"d.m.Y" }}</p>
+    </div>
+
+    <p>
+      <strong>Client:</strong> {{ invoice.booking.client.first_name }} {{
+      invoice.booking.client.last_name }}
+    </p>
+    <p>
+      <strong>Daterange:</strong> {{ invoice.booking.check_in }} – {{
+      invoice.booking.check_out }}
+    </p>
+
+    <table class="table">
+      <tr>
+        <th>Description</th>
+        <th>Ammount</th>
+      </tr>
+      <tr>
+        <td>Rental Price</td>
+        <td>{{ invoice.rental_price }} €</td>
+      </tr>
+      <tr>
+        <td>Service Price</td>
+        <td>{{ invoice.services_price }} €</td>
+      </tr>
+      {% if invoice.discount_amount > 0 %}
+      <tr>
+        <td>Discount ({{ invoice.promo_code }})</td>
+        <td>-{{ invoice.discount_amount }} €</td>
+      </tr>
+      {% endif %}
+      <tr>
+        <th>Total Price</th>
+        <th>{{ invoice.total_price }} €</th>
+      </tr>
+    </table>
+  </body>
+</html>
