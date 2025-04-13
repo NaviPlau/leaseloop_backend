@@ -7,6 +7,10 @@ from clients.serializers import ClientSerializer
 from units.serializers import UnitSerializer
 from services.serializers import ServiceSerializer
 from promocodes.serializers import PromocodesSerializer
+
+from invoices.models import Invoice
+from invoices.utils import generate_invoice_pdf
+
 class BookingSerializer(serializers.ModelSerializer):
     services = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Service.objects.all()
@@ -46,4 +50,18 @@ class BookingSerializer(serializers.ModelSerializer):
 
         booking.save()
 
+        if not hasattr(self, 'invoice'):
+            invoice = Invoice.objects.create(
+                booking=self,
+                deposit_paid=self.deposit_paid,
+                deposit_amount=self.deposit_amount,
+                rental_price=self.base_renting_price,
+                rental_days=self.total_days,
+                services_price=self.total_services_price,
+                total_price=self.total_price,
+                promo_code=self.promo_code.code if self.promo_code else None,
+                discount_amount=self.discount_amount,
+            )
+            generate_invoice_pdf(invoice)
+            
         return booking

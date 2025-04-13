@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'base_info',
     'addresses',
     'demo_dashboard',
+    'invoices',
     
 ]
 
