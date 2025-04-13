@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'promocodes',
     'base_info',
     'addresses',
+    'demo_dashboard',
+    
 ]
 
 MIDDLEWARE = [
