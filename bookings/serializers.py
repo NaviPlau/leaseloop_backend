@@ -47,19 +47,5 @@ class BookingSerializer(serializers.ModelSerializer):
         booking.total_price = booking.base_renting_price + booking.total_services_price - booking.discount_amount
 
         booking.save()
-
-        if not hasattr(self, 'invoice'):
-            invoice = Invoice.objects.create(
-                booking=self,
-                deposit_paid=self.deposit_paid,
-                deposit_amount=self.deposit_amount,
-                rental_price=self.base_renting_price,
-                rental_days=self.total_days,
-                services_price=self.total_services_price,
-                total_price=self.total_price,
-                promo_code=self.promo_code.code if self.promo_code else None,
-                discount_amount=self.discount_amount,
-            )
-            generate_invoice_pdf(invoice)
             
         return booking
