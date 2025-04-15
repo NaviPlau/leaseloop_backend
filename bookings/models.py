@@ -3,6 +3,7 @@ from clients.models import Client
 from services.models import Service
 from promocodes.models import Promocodes
 from units.models import Unit 
+from properties.models import Property
 
 class Booking(models.Model):
     STATUS_CHOICES = (
@@ -10,9 +11,6 @@ class Booking(models.Model):
         ('confirmed', 'Confirmed'),
         ('cancelled', 'Cancelled'),
     )
-
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE) 
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
     check_in = models.DateField()
     check_out = models.DateField()
     guests_count = models.PositiveIntegerField()
@@ -28,7 +26,6 @@ class Booking(models.Model):
         default='pending'
     )
 
-    services = models.ManyToManyField(Service, blank=True)
     promo_code = models.ForeignKey(Promocodes, on_delete=models.SET_NULL, null=True, blank=True)
     discount_amount = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,12 +38,6 @@ class Booking(models.Model):
         if self.total_days <= 0:
             self.total_days = 1
 
-        # Base renting price berechnen
-        extra_persons = self.unit.max_capacity -self.unit.capacity
-        self.base_renting_price = (
-            (self.unit.price_per_night) +
-            ((self.unit.price_per_extra_person) * extra_persons)
-        ) * self.total_days
 
         # Rabatt
         if self.promo_code:

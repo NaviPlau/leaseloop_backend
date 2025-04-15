@@ -16,3 +16,8 @@ media/
 # Environment
 .env
 
+# Django migrations
+**/migrations/
+**/migrations/*.py
+**/migrations/__pycache__/
+
