@@ -27,7 +27,7 @@ class Booking(models.Model):
     )
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True)
     property = models.ForeignKey(Property, on_delete=models.CASCADE,related_name='bookings', null=True, blank=True)
-    services = models.ManyToManyField(Service, related_name='bookings', null=True, blank=True)
+    services = models.ManyToManyField(Service, related_name='bookings', blank=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True)
     promo_code = models.ForeignKey(Promocodes, on_delete=models.SET_NULL, null=True, blank=True)
     discount_amount = models.FloatField(default=0.0)

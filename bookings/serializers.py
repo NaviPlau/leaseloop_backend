@@ -59,7 +59,7 @@ class BookingWriteSerializer(serializers.ModelSerializer):
     #     return booking
 
 class BookingReadSerializer(serializers.ModelSerializer):
-        property = PropertySerializer()
+        property = PropertySerializer(source='unit.property', read_only=True)
         unit = UnitSerializer()
         client = ClientSerializer()
         promo_code = PromocodesSerializer()
