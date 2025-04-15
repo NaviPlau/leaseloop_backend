@@ -1,11 +1,8 @@
-# invoices/utils.py
-
 from django.template.loader import render_to_string
 from django.conf import settings
 import os
-
 from xhtml2pdf import pisa
-from io import BytesIO
+
 
 def generate_invoice_pdf(invoice):
     html = render_to_string("invoices/invoice.html", {'invoice': invoice})
