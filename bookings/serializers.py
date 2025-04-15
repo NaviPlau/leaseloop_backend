@@ -12,11 +12,7 @@ from properties.serializers import PropertySerializer
 from invoices.models import Invoice
 from invoices.utils import generate_invoice_pdf
 
-class BookingSerializer(serializers.ModelSerializer):
-    services = ServiceSerializer(many=True, read_only=True)
-    unit = UnitSerializer(read_only=True)
-    client = ClientSerializer(read_only=True)
-    property = PropertySerializer(read_only=True)
+class BookingWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
@@ -61,3 +57,14 @@ class BookingSerializer(serializers.ModelSerializer):
     #         generate_invoice_pdf(invoice)
             
     #     return booking
+
+class BookingReadSerializer(serializers.ModelSerializer):
+        property = PropertySerializer()
+        unit = UnitSerializer()
+        client = ClientSerializer()
+        promo_code = PromocodesSerializer()
+        services = ServiceSerializer(many=True)
+
+        class Meta:
+            model = Booking
+            fields = '__all__'

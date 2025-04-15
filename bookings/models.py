@@ -25,27 +25,30 @@ class Booking(models.Model):
         choices=STATUS_CHOICES,
         default='pending'
     )
-
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE,related_name='bookings', null=True, blank=True)
+    services = models.ManyToManyField(Service, related_name='bookings', null=True, blank=True)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True)
     promo_code = models.ForeignKey(Promocodes, on_delete=models.SET_NULL, null=True, blank=True)
     discount_amount = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-    def save(self, *args, **kwargs):
-    # Tage berechnen
-        self.total_days = (self.check_out - self.check_in).days
-        if self.total_days <= 0:
-            self.total_days = 1
+    # def save(self, *args, **kwargs):
+    # # Tage berechnen
+    #     self.total_days = (self.check_out - self.check_in).days
+    #     if self.total_days <= 0:
+    #         self.total_days = 1
 
 
-        # Rabatt
-        if self.promo_code:
-            self.discount_amount = (self.base_renting_price * (self.promo_code.discount_percent / 100))
+    #     # Rabatt
+    #     if self.promo_code:
+    #         self.discount_amount = (self.base_renting_price * (self.promo_code.discount_percent / 100))
 
-        self.total_price = self.base_renting_price + self.total_services_price - self.discount_amount
+    #     self.total_price = self.base_renting_price + self.total_services_price - self.discount_amount
 
-        super().save(*args, **kwargs)
+    #     super().save(*args, **kwargs)
     
 
 
