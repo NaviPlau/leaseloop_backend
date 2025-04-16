@@ -32,27 +32,13 @@ def generate_invoice_from_booking(request, booking_id):
     invoice, created = Invoice.objects.get_or_create(
         booking=booking,
         defaults={
-            'deposit_paid': booking.deposit_paid,
-            'deposit_amount': booking.deposit_amount,
-            'rental_price': booking.base_renting_price,
-            'rental_days': booking.total_days,
-            'services_price': booking.total_services_price,
-            'total_price': booking.total_price,
-            'promo_code': booking.promo_code,
-            'discount_amount': booking.discount_amount,
+            'invoice_number': generate_invoice_number(),
         }
     )
 
-    if not created:
-        invoice.deposit_paid = booking.deposit_paid
-        invoice.deposit_amount = booking.deposit_amount
-        invoice.rental_price = booking.base_renting_price
-        invoice.rental_days = booking.total_days
-        invoice.services_price = booking.total_services_price
-        invoice.total_price = booking.total_price
-        invoice.promo_code = booking.promo_code
-        invoice.discount_amount = booking.discount_amount
-        invoice.save()
+    if not created and not invoice.invoice_number:
+        invoice.invoice_number = generate_invoice_number()
+        invoice.save(update_fields=['invoice_number'])
 
     generate_invoice_pdf(invoice)
 
@@ -61,6 +47,7 @@ def generate_invoice_from_booking(request, booking_id):
         'invoice_id': invoice.id,
         'pdf_file': invoice.pdf_file.url if invoice.pdf_file else None
     }, status=status.HTTP_201_CREATED)
+
 
 
 class OwnerInvoiceListView(ListAPIView):
@@ -74,4 +61,6 @@ class OwnerInvoiceListView(ListAPIView):
         :return: A list of Invoice objects
         """
         user = self.request.user
-        return Invoice.objects.filter(booking__client__user=user)
+        return Invoice.objects.all()
+       # return Invoice.objects.filter(booking__client__user=user)
+       # TODO: add filter for user
