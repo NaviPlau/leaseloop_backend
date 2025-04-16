@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Booking Confirmation – LeaseLoop</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .content {
+        text-align: left;
+      }
+      .content h1 {
+        color: #2e3edf;
+      }
+      .highlight {
+        color: #2e3edf;
+        font-weight: bold;
+      }
+      .details {
+        margin: 20px 0;
+        line-height: 1.6;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="content">
+        <h1>Booking Confirmation</h1>
+        <p>
+          Dear {{ booking.client.first_name }} {{ booking.client.last_name }},
+        </p>
+
+        <p>
+          Thank you for your booking with
+          <span class="highlight">LeaseLoop</span>!
+        </p>
+
+        <div class="details">
+          <p><strong>Property:</strong> {{ booking.unit.property.name }}</p>
+          <p><strong>Unit:</strong> {{ booking.unit.name }}</p>
+          <p><strong>Check-in:</strong> {{ booking.check_in }}</p>
+          <p><strong>Check-out:</strong> {{ booking.check_out }}</p>
+          <p><strong>Guests:</strong> {{ booking.guests_count }}</p>
+          <p><strong>Total price:</strong> €{{ booking.total_price }}</p>
+        </div>
+
+        <p>
+          You can find your detailed invoice attached to this email as a PDF
+          document.
+        </p>
+
+        <p>
+          If you have any questions or need to make changes to your booking,
+          feel free to contact us anytime.
+        </p>
+
+        <p>Best regards, <br />Your LeaseLoop Team</p>
+      </div>
+
+      <div class="footer">
+        <p>
+          Need help? Contact us at
+          <a href="mailto:support@lease-loop.com">support@lease-loop.com</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
