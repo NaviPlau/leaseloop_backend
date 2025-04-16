@@ -88,8 +88,9 @@
       <p><strong>Property:</strong> {{ invoice.booking.unit.property.name }}</p>
       <p><strong>Unit:</strong> {{ invoice.booking.unit.name }}</p>
       <p>
-        <strong>Stay:</strong> {{ invoice.booking.check_in }} – {{
-        invoice.booking.check_out }} ({{ invoice.rental_days }} nights)
+        <strong>Stay:</strong> {{ invoice.booking.check_in|date:"d.m.Y" }} – {{
+        invoice.booking.check_out|date:"d.m.Y" }} ({{ invoice.rental_days }}
+        nights)
       </p>
       <p><strong>Guests:</strong> {{ invoice.booking.guests_count }}</p>
     </div>
@@ -104,32 +105,35 @@
       <tbody>
         <tr>
           <td>Base Rental ({{ invoice.rental_days }} nights)</td>
-          <td>{{ invoice.rental_price }}</td>
+          <td>{{ invoice.rental_price|default:"0.00" }}</td>
         </tr>
         <tr>
           <td>Services</td>
-          <td>{{ invoice.services_price }}</td>
+          <td>{{ invoice.services_price|default:"0.00" }}</td>
         </tr>
-        {% if invoice.discount_amount > 0 %}
+        {% if invoice.discount_amount and invoice.discount_amount > 0 %}
         <tr>
-          <td>Discount ({{ invoice.promo_code.code }})</td>
-          <td>-{{ invoice.discount_amount }}</td>
+          <td>
+            Discount {% if invoice.promo_code %}({{ invoice.promo_code.code
+            }}){% endif %}
+          </td>
+          <td>-{{ invoice.discount_amount|floatformat:2 }}</td>
         </tr>
         {% endif %}
         <tr class="total">
           <td>Total Price</td>
-          <td>{{ invoice.total_price }}</td>
+          <td>{{ invoice.total_price|floatformat:2 }}</td>
         </tr>
         {% if invoice.deposit_paid %}
         <tr>
           <td>Deposit Paid</td>
-          <td>-{{ invoice.deposit_amount }}</td>
+          <td>-{{ invoice.deposit_amount|floatformat:2 }}</td>
         </tr>
         <tr class="total">
           <td>Remaining Balance</td>
           <td>
             {{
-            invoice.total_price|floatformat:2|add:"-invoice.deposit_amount"|floatformat:2
+            invoice.total_price|floatformat:2|add:"-{}".format(invoice.deposit_amount)|floatformat:2
             }}
           </td>
         </tr>
