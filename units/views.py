@@ -93,7 +93,8 @@ class UnitAPIView(APIView):
         if unit.property.owner != request.user:
             return Response({"error": "Not authorized to delete this unit."}, status=status.HTTP_403_FORBIDDEN)
 
-        unit.delete()
+        unit.status = 'unavailable'
+        unit.save()
         return Response({"message": f"Unit {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
 
 

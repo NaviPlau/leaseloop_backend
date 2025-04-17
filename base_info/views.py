@@ -49,7 +49,7 @@ class DashboardStatsAPIView(APIView):
 
             # Guests currently present
             active_guests = bookings.filter(check_in__lte=today, check_out__gte=today)
-            guests_total = sum([b.guests for b in active_guests])
+            guests_total = sum([b.guests_count for b in active_guests])
 
             # Occupancy today
             units_total = units.count()

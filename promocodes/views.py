@@ -63,5 +63,6 @@ class PromocodesAPIView(APIView):
             return Response({'error': 'Promocode-ID requeried.'}, status=status.HTTP_400_BAD_REQUEST)
 
         promocode_obj = get_object_or_404(Promocodes, pk=pk)
-        promocode_obj.delete()
+        promocode_obj.active = False
+        promocode_obj.save()
         return Response({'message': 'Promocode successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)

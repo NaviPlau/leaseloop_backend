@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from addresses.models import Address
 class Property(models.Model):
+    active = models.BooleanField(default=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='properties'
     )
@@ -16,7 +17,7 @@ class Property(models.Model):
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name='images'
+        Property, on_delete=models.SET_NULL, null=True, related_name='images'
     )
     image = models.FileField(upload_to='property_images/', blank=True) #define the upload path
     alt_text = models.CharField(max_length=255, blank=True)

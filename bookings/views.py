@@ -48,5 +48,6 @@ class BookingAPIView(APIView):
 
     def delete(self, request, pk):
         booking = get_object_or_404(Booking, pk=pk)
-        booking.delete()
+        booking.status = 'cancelled'
+        booking.save()
         return Response(status=status.HTTP_204_NO_CONTENT)  

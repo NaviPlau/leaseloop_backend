@@ -7,6 +7,7 @@ class Unit(models.Model):
         ('booked', 'Booked'),
         ('maintenance', 'Maintenance'),
         ('cleaning', 'Cleaning'),
+        ('unavailable', 'Unavailable'),
     ]
     TYPE_CHOICES = [
         ('apartment', 'Apartment'),

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from .serializers import ClientSerializer
 from .models import Client
+from bookings .models import Booking
 # Create your views here.
 class ClientAPIView(APIView):
     
@@ -66,5 +67,11 @@ class ClientAPIView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        client_obj.delete()
+        bookings = Booking.objects.filter(client=client_obj)
+        for booking in bookings:
+            booking.status = 'cancelled'
+            booking.save()
+        
+        client_obj.active = False
+        client_obj.save()
         return Response({'message': 'Client successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
