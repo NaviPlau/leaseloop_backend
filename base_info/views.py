@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from bookings.models import Booking
 from units.models import Unit
-from .serializers import DashboardStatsSerializer
+from calendar import monthrange
+
 
 class DashboardStatsAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -13,23 +14,12 @@ class DashboardStatsAPIView(APIView):
     def get(self, request):
         """
         Gets the dashboard statistics.
-
-        Returns a JSON object with the following statistics:
-
-        - next_arrival: The date of the next arrival.
-        - next_departure: The date of the next departure.
-        - guests_present: The number of guests currently present.
-        - occupancy_today: The percentage of occupancy for today.
-        - occupancy_month: The percentage of occupancy for the month.
-
-        :param request: The request object
-        :return: A JSON object with the dashboard statistics
         """
         user = request.user
 
         try:
             units = Unit.objects.filter(property__owner=user)
-            bookings = Booking.objects.filter(unit__property__owner=user)
+            bookings = Booking.objects.filter(unit__property__owner=user).exclude(status='cancelled')
 
             if not units.exists():
                 return Response({"error": "No units found for this user."}, status=status.HTTP_404_NOT_FOUND)
@@ -38,6 +28,7 @@ class DashboardStatsAPIView(APIView):
                 return Response({"error": "No bookings found for this user."}, status=status.HTTP_404_NOT_FOUND)
 
             today = timezone.now().date()
+            units_total = units.count()
 
             # Next arrival
             upcoming_arrivals = bookings.filter(check_in__gte=today).order_by("check_in")
@@ -51,27 +42,31 @@ class DashboardStatsAPIView(APIView):
             active_guests = bookings.filter(check_in__lte=today, check_out__gte=today)
             guests_total = sum([b.guests_count for b in active_guests])
 
-            # Occupancy today
-            units_total = units.count()
-            occupied_today = bookings.filter(check_in__lte=today, check_out__gt=today).count()
+            # Occupancy today: count distinct units that are currently occupied
+            occupied_today = bookings.filter(
+                check_in__lte=today,
+                check_out__gt=today
+            ).values_list('unit', flat=True).distinct().count()
+
             occupancy_today = round((occupied_today / units_total) * 100) if units_total > 0 else 0
 
             # Monthly occupancy
             start_of_month = today.replace(day=1)
-            end_of_month = timezone.datetime(today.year, today.month + 1, 1).date() if today.month < 12 else timezone.datetime(today.year + 1, 1, 1).date()
+            _, last_day = monthrange(today.year, today.month)
+            end_of_month = today.replace(day=last_day)
+
             total_available_nights = units_total * (end_of_month - start_of_month).days
 
             occupied_nights = 0
-            for booking in bookings:
-                check_in = booking.check_in
-                check_out = booking.check_out
-
-                start = max(check_in, start_of_month)
-                end = min(check_out, end_of_month)
-
-                delta = (end - start).days
-                if delta > 0:
-                    occupied_nights += delta
+            for unit in units:
+                unit_bookings = bookings.filter(unit=unit)
+                for booking in unit_bookings:
+                    # Calculate the overlap of booking dates with the current month
+                    start = max(booking.check_in, start_of_month)
+                    end = min(booking.check_out, end_of_month)
+                    delta = (end - start).days
+                    if delta > 0:
+                        occupied_nights += delta
 
             occupancy_month = round((occupied_nights / total_available_nights) * 100) if total_available_nights > 0 else 0
 
