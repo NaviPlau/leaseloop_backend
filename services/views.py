@@ -89,5 +89,6 @@ class ServiceAPIView(APIView):
         service = get_object_or_404(Service, pk=pk)
         if service.property.owner != request.user:
             return Response({"error": "Not authorized to delete this service."}, status=status.HTTP_403_FORBIDDEN)
-        service.delete()
+        service.active = False
+        service.save()
         return Response({"message": f"Service {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)

@@ -28,6 +28,7 @@ class Unit(models.Model):
     type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='apartment')
     max_capacity = models.PositiveIntegerField(default=1)
     price_per_extra_person = models.FloatField(default=0.0)
+    active = models.BooleanField(default=True)
 
 
     def __str__(self):

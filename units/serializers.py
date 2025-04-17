@@ -15,9 +15,7 @@ class UnitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Unit
-        fields = [
-            'id', 'property', 'property_id', 'name', 'description', 'max_capacity', 'price_per_extra_person', 'capacity', 'price_per_night', 'status', 'images'
-        ]
+        fields = '__all__'
 
     def create(self, validated_data):
         property_obj = validated_data.pop('property_id')
@@ -32,5 +30,7 @@ class UnitSerializer(serializers.ModelSerializer):
         instance.capacity = validated_data.get('capacity', instance.capacity)
         instance.price_per_night = validated_data.get('price_per_night', instance.price_per_night)
         instance.status = validated_data.get('status', instance.status)
+        instance.type = validated_data.get('type', instance.type)
+        instance.active = validated_data.get('active', instance.active)
         instance.save()
         return instance

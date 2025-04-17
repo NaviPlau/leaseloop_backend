@@ -5,6 +5,7 @@ class Service(models.Model):
         ('one_time', 'One Time'),
         ('per_day', 'Per Day'),
     ]
+    active = models.BooleanField(default=True)
     name = models.CharField(max_length=200)
     price = models.FloatField(default=0.0)
     type = models.CharField(max_length=20, choices=STATUS_CHOICES, default='one_time')
