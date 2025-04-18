@@ -6,6 +6,7 @@ from bookings.models import Booking
 from services.models import Service
 from datetime import datetime
 from django.utils.dateparse import parse_date
+from collections import defaultdict
 
 class RevenueOverviewView(APIView):
     permission_classes = [IsAuthenticated]
@@ -39,14 +40,34 @@ class BookingStatsView(APIView):
         bookings = Booking.objects.filter(created_at__range=(start_date, end_date))
 
         if property_id and property_id != 'all':
-            bookings = bookings.filter(property_id=property_id)
+            bookings = bookings.filter(unit__property_id=property_id)
         if unit_id and unit_id != 'all':
             bookings = bookings.filter(unit_id=unit_id)
 
-        return Response({
-            'total': bookings.count(),
-            'new': bookings.filter(status='confirmed').count()
-        })
+        stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+
+        for booking in bookings:
+            pid = booking.unit.property_id
+            uid = booking.unit_id
+            status = booking.status
+
+            stats[pid][uid][status] += 1
+            stats[pid][uid]['total'] += 1
+
+        result = {
+            'properties': {
+                str(pid): {
+                    'units': {
+                        str(uid): dict(unit_stats)
+                        for uid, unit_stats in units.items()
+                    }
+                }
+                for pid, units in stats.items()
+            }
+        }
+
+        return Response(result)
+
 
 
 class CancellationStatsView(APIView):
