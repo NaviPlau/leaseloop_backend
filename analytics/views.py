@@ -8,10 +8,11 @@ from datetime import datetime
 from django.utils.dateparse import parse_date
 from collections import defaultdict
 
-class RevenueOverviewView(APIView):
+class RevenueGroupedByView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        group_by = request.GET.get('group_by', 'property')  
         start_date = parse_date(request.GET.get('from'))
         end_date = parse_date(request.GET.get('to'))
         property_id = request.GET.get('property')
@@ -24,8 +25,20 @@ class RevenueOverviewView(APIView):
         if unit_id and unit_id != 'all':
             qs = qs.filter(unit_id=unit_id)
 
-        revenue = qs.aggregate(total=Sum('total_price'))
-        return Response({'total_revenue': revenue['total'] or 0})
+        if group_by == 'unit':
+            qs = qs.values('unit__name').annotate(revenue=Sum('total_price')).order_by('unit__name')
+            response_data = [{
+                'name': item['unit__name'],
+                'revenue': item['revenue'] or 0
+            } for item in qs]
+        else:
+            qs = qs.values('property__name').annotate(revenue=Sum('total_price')).order_by('property__name')
+            response_data = [{
+                'name': item['property__name'],
+                'revenue': item['revenue'] or 0
+            } for item in qs]
+
+        return Response(response_data)
 
 
 class BookingStatsView(APIView):
@@ -70,25 +83,6 @@ class BookingStatsView(APIView):
 
 
 
-class CancellationStatsView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        start_date = parse_date(request.GET.get('from'))
-        end_date = parse_date(request.GET.get('to'))
-        property_id = request.GET.get('property')
-        unit_id = request.GET.get('unit')
-
-        qs = Booking.objects.filter(status='cancelled', updated_at__range=(start_date, end_date))
-
-        if property_id and property_id != 'all':
-            qs = qs.filter(property_id=property_id)
-        if unit_id and unit_id != 'all':
-            qs = qs.filter(unit_id=unit_id)
-
-        canceled = qs.count()
-        return Response({'cancellations': canceled})
-
 
 class ServiceSalesView(APIView):
     permission_classes = [IsAuthenticated]
@@ -117,44 +111,3 @@ class ServiceSalesView(APIView):
         return Response(data)
 
 
-class TopBookingPeriodsView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        property_id = request.GET.get('property')
-        unit_id = request.GET.get('unit')
-
-        qs = Booking.objects.extra(select={'day': "date(created_at)"})
-
-        if property_id and property_id != 'all':
-            qs = qs.filter(property_id=property_id)
-        if unit_id and unit_id != 'all':
-            qs = qs.filter(unit_id=unit_id)
-
-        qs = qs.values('day').annotate(count=Count('id')).order_by('-count')[:7]
-        return Response(qs)
-
-
-class RevenueGroupedByView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        group_by = request.GET.get('group_by', 'property')
-        start_date = parse_date(request.GET.get('from'))
-        end_date = parse_date(request.GET.get('to'))
-        property_id = request.GET.get('property')
-        unit_id = request.GET.get('unit')
-
-        qs = Booking.objects.filter(created_at__range=(start_date, end_date))
-
-        if property_id and property_id != 'all':
-            qs = qs.filter(property_id=property_id)
-        if unit_id and unit_id != 'all':
-            qs = qs.filter(unit_id=unit_id)
-
-        if group_by == 'unit':
-            qs = qs.values('unit__name').annotate(revenue=Sum('total_price'))
-        else:  # default: property
-            qs = qs.values('property__name').annotate(revenue=Sum('total_price'))
-
-        return Response(qs)
