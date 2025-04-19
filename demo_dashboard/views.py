@@ -7,15 +7,39 @@ from django.contrib.auth import get_user_model
 from datetime import timedelta, date
 import random
 
-from properties.models import Property
+from properties.models import Property, PropertyImage
 from units.models import Unit, UnitImage
 from services.models import Service
 from promocodes.models import Promocodes
 from clients.models import Client
 from addresses.models import Address
 from bookings.models import Booking
-
+import os
+from django.core.files import File
 User = get_user_model()
+
+from django.core.files.base import ContentFile
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROPERTY_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'property_images')
+UNIT_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'unit_images')
+
+
+def get_random_image(path: str) -> File | None:
+    images = [f for f in os.listdir(path) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))]
+    if not images:
+        return None
+
+    selected_filename = random.choice(images)
+    full_path = os.path.join(path, selected_filename)
+
+    with open(full_path, 'rb') as f:
+        content = f.read()
+        django_file = ContentFile(content)
+        django_file.name = selected_filename
+        return django_file
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -42,18 +66,23 @@ def reset_guest_demo_data(request):
 
     unit_types = ['apartment', 'villa', 'house', 'studio', 'suite', 'cabin', 'condo', 'townhouse']
     unit_names = ["Deluxe", "Cozy", "Modern", "Rustic", "Elegant", "Sunny", "Quiet", "Spacious"]
-
+    
+    street_names = ["Maple Street", "Oak Avenue", "Pine Road", "Cedar Lane", "Birch Way"]
+    cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]
+    countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium"]
+    phone_numbers = [
+        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654" ]
     properties = []
     units_by_property = {}
 
     for prop_name in property_names:
         address = Address.objects.create(
-            street=f"{random.randint(1, 99)} Example Street",
+            street=random.choice(street_names),
             house_number=str(random.randint(1, 99)),
             postal_code=f"{random.randint(10000, 99999)}",
-            city="Demo City",
-            country="Demo Country",
-            phone=f"+49 123 456789"
+            city=random.choice(cities),
+            country=random.choice(countries),
+            phone=random.choice(phone_numbers)
         )
 
         property = Property.objects.create(
@@ -62,6 +91,15 @@ def reset_guest_demo_data(request):
             address=address,
             description=f"{prop_name} - A perfect place for your stay."
         )
+        
+        property_image = get_random_image(PROPERTY_IMAGE_DIR)
+        if property_image:
+            PropertyImage.objects.create(
+                property=property,
+                image=property_image,
+                alt_text=f"Image for {property.name}"
+            )
+
         properties.append(property)
         units_by_property[property.id] = []
 
@@ -77,8 +115,16 @@ def reset_guest_demo_data(request):
                 status=random.choice(['available', 'booked', 'maintenance', 'cleaning']),
                 type=random.choice(unit_types)
             )
+            
+            
+            unit_image_file = get_random_image(UNIT_IMAGE_DIR)
+            if unit_image_file:
+                UnitImage.objects.create(
+                    unit=unit,
+                    image=unit_image_file,
+                    alt_text=f"Image for {unit.name}"
+                )
             units_by_property[property.id].append(unit)
-            UnitImage.objects.create(unit=unit, alt_text="Sample image")
 
         for _ in range(random.randint(1, 3)):
             Service.objects.create(
@@ -87,26 +133,52 @@ def reset_guest_demo_data(request):
                 price=random.uniform(15, 50),
                 property=property
             )
+    client_first_names = [
+    "John", "Jane", "Alice", "Bob", "Charlie", "Emily", "Liam", "Emma", "Noah", "Olivia",
+    "Ava", "Elijah", "Mia", "Sophia", "Lucas", "Amelia", "Mason", "Isabella", "Ethan", "Charlotte"
+]
 
+    client_last_names = [
+    "Smith", "Doe", "Brown", "Johnson", "Williams", "Taylor", "Anderson", "Thomas", "Moore", "Jackson",
+    "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis"
+]
+    email_domains = ["example.com", "demo.org", "mail.dev", "sample.net"]
+    client_street_names = ["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way"]
+    client_postal_codes = ["10115", "10117", "10119", "10178", "10179"]
+    client_cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]
+    client_countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium"]
+    client_phone_numbers = [
+        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654" ]
     clients = []
     for i in range(100):
+        first = random.choice(client_first_names)
+        last = random.choice(client_last_names)
+        domain = random.choice(email_domains)
+
+        email = f"{first.lower()}.{last.lower()}{random.randint(1, 99)}@{domain}"
+
+        street_base = random.choice(["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way"])
+        street = f"{street_base} {random.randint(1, 150)}"
+        phone = f"+49 30 {random.randint(100000, 999999)}"
+
         addr = Address.objects.create(
-            street=f"Client Street {i+1}",
+            street=street,
             house_number=str(random.randint(1, 99)),
-            postal_code="10115",
-            city="Berlin",
-            country="Germany",
-            phone=f"+49 30 123456{i}"
+            postal_code=random.choice(["10115", "10117", "10119", "10178", "10179"]),
+            city=random.choice(["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]),
+            country=random.choice(["Germany", "Austria", "Switzerland", "Netherlands", "Belgium"]),
+            phone=phone
         )
+
         client = Client.objects.create(
-            first_name=f"Client{i+1}",
-            last_name="Demo",
-            email=f"client{i+1}@example.com",
+            first_name=first,
+            last_name=last,
+            email=email,
             user=guest_user,
             address=addr
         )
         clients.append(client)
-
+    
     promocodes = []
     for code in ["WELCOME10", "SUMMER15", "AUTUMN20", "WINTER25", "SPRING5"]:
         promo = Promocodes.objects.create(
