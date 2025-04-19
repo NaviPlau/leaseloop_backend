@@ -33,6 +33,7 @@ class Booking(models.Model):
     discount_amount = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted = models.BooleanField(default=False)
 
 
     # def save(self, *args, **kwargs):

@@ -25,7 +25,8 @@ class BookingAPIView(APIView):
             serializer = BookingReadSerializer(booking_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        bookings = Booking.objects.all().order_by('-created_at')
+        all_bookings = Booking.objects.all().order_by('-created_at')
+        bookings = all_bookings.filter(deleted=False)
         serializer = BookingReadSerializer(bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -49,5 +50,6 @@ class BookingAPIView(APIView):
     def delete(self, request, pk):
         booking = get_object_or_404(Booking, pk=pk)
         booking.status = 'cancelled'
+        booking.deleted = True
         booking.save()
         return Response(status=status.HTTP_204_NO_CONTENT)  
