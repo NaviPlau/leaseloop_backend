@@ -28,6 +28,7 @@ class ServiceAPIView(APIView):
 
         # List all services of the user
         services = Service.objects.filter(property__owner=request.user).order_by('-created_at')
+        services = services.filter(deleted=False)	
         serializer = ServiceSerializer(services, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
@@ -89,6 +90,6 @@ class ServiceAPIView(APIView):
         service = get_object_or_404(Service, pk=pk)
         if service.property.owner != request.user:
             return Response({"error": "Not authorized to delete this service."}, status=status.HTTP_403_FORBIDDEN)
-        service.active = False
+        service.deleted = True
         service.save()
         return Response({"message": f"Service {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)

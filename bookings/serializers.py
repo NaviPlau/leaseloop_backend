@@ -18,45 +18,120 @@ class BookingWriteSerializer(serializers.ModelSerializer):
         model = Booking
         fields = '__all__'
 
-    # def create(self, validated_data):
-    #     services_data = validated_data.pop('services', [])
+    def create(self, validated_data):
+    # Extract IDs from initial data
+        service_ids = self.initial_data.get('services', [])
+        unit_id = self.initial_data.get('unit')
+        promo_code_id = self.initial_data.get('promo_code')
 
-    #     booking = Booking.objects.create(**validated_data)
+        check_in = validated_data.get('check_in')
+        check_out = validated_data.get('check_out')
+        guests_count = validated_data.get('guests_count')
 
-    #     booking.services.set(services_data)
+        # Calculate total_days
+        total_days = (check_out - check_in).days
+        total_days = max(1, total_days)
 
-    #     # Total services price calculation
-    #     total_services_price = 0
-    #     for service in services_data:
-    #         if service.type == 'per_day':
-    #             total_services_price += service.price * booking.guests_count * booking.total_days
-    #         else:
-    #             total_services_price += service.price
+        # Fetch Unit
+        unit = Unit.objects.get(id=unit_id)
+        validated_data['unit'] = unit
+        base_price = unit.price_per_night * total_days
 
-    #     booking.total_services_price = total_services_price
+        if guests_count > unit.max_capacity:
+            extra_guests = guests_count - unit.capacity
+            base_price += extra_guests * unit.price_per_extra_person * total_days
 
-    #     if booking.promo_code:
-    #         booking.discount_amount = (booking.base_renting_price * (booking.promo_code.discount_percent / 100))
+        # Fetch Services
+        service_objs = Service.objects.filter(id__in=service_ids)
+        total_services_price = 0.0
+        for service in service_objs:
+            if service.type == 'per_day':
+                total_services_price += service.price * total_days
+            else:
+                total_services_price += service.price
 
-    #     booking.total_price = booking.base_renting_price + booking.total_services_price - booking.discount_amount
+        # Promo Code
+        discount_amount = 0.0
+        if promo_code_id:
+            promo = Promocodes.objects.get(id=promo_code_id, active=True)
+            validated_data['promo_code'] = promo
+            discount_amount = (base_price + total_services_price) * (promo.discount_percent / 100)
 
-    #     booking.save()
+        # Final price
+        total_price = base_price + total_services_price - discount_amount
 
-    #     if not hasattr(self, 'invoice'):
-    #         invoice = Invoice.objects.create(
-    #             booking=self,
-    #             deposit_paid=self.deposit_paid,
-    #             deposit_amount=self.deposit_amount,
-    #             rental_price=self.base_renting_price,
-    #             rental_days=self.total_days,
-    #             services_price=self.total_services_price,
-    #             total_price=self.total_price,
-    #             promo_code=self.promo_code.code if self.promo_code else None,
-    #             discount_amount=self.discount_amount,
-    #         )
-    #         generate_invoice_pdf(invoice)
-            
-    #     return booking
+        # Add computed fields
+        validated_data.update({
+            'total_days': total_days,
+            'base_renting_price': round(base_price, 2),
+            'total_services_price': round(total_services_price, 2),
+            'discount_amount': round(discount_amount, 2),
+            'total_price': round(total_price, 2),
+        })
+        validated_data.pop('services', None)
+
+        # Create booking without services
+        booking = Booking.objects.create(**validated_data)
+
+        # Set M2M services
+        booking.services.set(service_objs)
+
+        return booking
+    
+    def update(self, instance, validated_data):
+        service_ids = self.initial_data.get('services', [])
+        unit_id = self.initial_data.get('unit')
+        promo_code_id = self.initial_data.get('promo_code')
+
+        check_in = validated_data.get('check_in', instance.check_in)
+        check_out = validated_data.get('check_out', instance.check_out)
+        guests_count = validated_data.get('guests_count', instance.guests_count)
+
+        
+        total_days = (check_out - check_in).days
+        total_days = max(1, total_days)
+
+        
+        unit = Unit.objects.get(id=unit_id) if unit_id else instance.unit
+        validated_data['unit'] = unit
+        base_price = unit.price_per_night * total_days
+
+        if guests_count > unit.capacity:
+            extra_guests = guests_count - unit.capacity 
+            base_price += extra_guests * unit.price_per_extra_person * total_days
+
+        
+        service_objs = Service.objects.filter(id__in=service_ids)
+        total_services_price = 0.0
+        for service in service_objs:
+            if service.type == 'per_day':
+                total_services_price += service.price * total_days
+            else:
+                total_services_price += service.price
+
+        discount_amount = 0.0
+        if promo_code_id:
+            promo = Promocodes.objects.get(id=promo_code_id, active=True)
+            validated_data['promo_code'] = promo
+            discount_amount = (base_price + total_services_price) * (promo.discount_percent / 100)
+
+        total_price = base_price + total_services_price - discount_amount
+        validated_data.update({
+            'total_days': total_days,
+            'base_renting_price': round(base_price, 2),
+            'total_services_price': round(total_services_price, 2),
+            'discount_amount': round(discount_amount, 2),
+            'total_price': round(total_price, 2),
+        })
+
+        validated_data.pop('services', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        instance.services.set(service_objs)
+
+        return instance
 
 class BookingReadSerializer(serializers.ModelSerializer):
         property = PropertySerializer(source='unit.property', read_only=True)

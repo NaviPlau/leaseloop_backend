@@ -36,36 +36,3 @@ class Booking(models.Model):
     deleted = models.BooleanField(default=False)
 
 
-    # def save(self, *args, **kwargs):
-    # # Tage berechnen
-    #     self.total_days = (self.check_out - self.check_in).days
-    #     if self.total_days <= 0:
-    #         self.total_days = 1
-
-
-    #     # Rabatt
-    #     if self.promo_code:
-    #         self.discount_amount = (self.base_renting_price * (self.promo_code.discount_percent / 100))
-
-    #     self.total_price = self.base_renting_price + self.total_services_price - self.discount_amount
-
-    #     super().save(*args, **kwargs)
-    
-
-
-
-    # percent of the promo code
-    # dicsount amount
-    # total price
-    # total days
-    # created at
-    # deposit amount
-    # total services pricing
-
-
-
-    # base_renting_price = (unit price per night + (unit_extra_person_price * (guests_count - unit_max-capacity))) * total_days
-    # total_services_price = sum(service.price for service in services)  if services.service.type = per_day  serviceprice*guests_count else service.price
-    # total_renting_price = (base_renting_price + total_services_price ) -  discount_amount
-    # discountamount = (base_renting_price * (promo_code.percent/100))
-

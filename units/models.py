@@ -29,6 +29,7 @@ class Unit(models.Model):
     max_capacity = models.PositiveIntegerField(default=1)
     price_per_extra_person = models.FloatField(default=0.0)
     active = models.BooleanField(default=True)
+    deleted = models.BooleanField(default=False)
 
 
     def __str__(self):

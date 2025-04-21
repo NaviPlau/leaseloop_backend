@@ -7,6 +7,7 @@ class Client(models.Model):
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     email = models.EmailField(max_length=200)
+    deleted = models.BooleanField(default=False)
     address = models.OneToOneField(
         'addresses.Address',
         on_delete=models.CASCADE,

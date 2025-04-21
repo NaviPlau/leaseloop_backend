@@ -34,6 +34,7 @@ class PropertyAPIView(APIView):
 
         # List all properties of the user
         properties = Property.objects.filter(owner=request.user).order_by('-created_at')
+        properties = properties.filter(deleted=False)	
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -84,7 +85,7 @@ class PropertyAPIView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        property_obj.active = False
+        property_obj.deleted = True
         property_obj.save()
         return Response({'message': 'Property successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
 

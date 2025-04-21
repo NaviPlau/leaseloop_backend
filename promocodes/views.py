@@ -28,6 +28,7 @@ class PromocodesAPIView(APIView):
 
         # List all promocodes
         promocodes = Promocodes.objects.all().order_by('-created_at')
+        promocodes = promocodes.filter(deleted=False)
         serializer = PromocodesSerializer(promocodes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -63,6 +64,6 @@ class PromocodesAPIView(APIView):
             return Response({'error': 'Promocode-ID requeried.'}, status=status.HTTP_400_BAD_REQUEST)
 
         promocode_obj = get_object_or_404(Promocodes, pk=pk)
-        promocode_obj.active = False
+        promocode_obj.deleted = True
         promocode_obj.save()
         return Response({'message': 'Promocode successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)

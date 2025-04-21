@@ -24,9 +24,8 @@ class ClientAPIView(APIView):
             
             serializer = ClientSerializer(client_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        # List all clients of the user
         clients = Client.objects.filter(user=request.user).order_by('-created_at')
+        clients = clients.filter(deleted=False)
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
@@ -72,6 +71,6 @@ class ClientAPIView(APIView):
             booking.status = 'cancelled'
             booking.save()
         
-        client_obj.active = False
+        client_obj.deleted = True
         client_obj.save()
         return Response({'message': 'Client successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)

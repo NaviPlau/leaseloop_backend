@@ -32,7 +32,8 @@ class UnitAPIView(APIView):
             return Response(UnitSerializer(units, many=True).data, status=status.HTTP_200_OK)
 
         units = Unit.objects.all()
-        return Response(UnitSerializer(units, many=True).data, status=status.HTTP_200_OK)
+        active_units = units.filter(deleted=False)
+        return Response(UnitSerializer(active_units, many=True).data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """
@@ -93,7 +94,7 @@ class UnitAPIView(APIView):
         if unit.property.owner != request.user:
             return Response({"error": "Not authorized to delete this unit."}, status=status.HTTP_403_FORBIDDEN)
 
-        unit.status = 'unavailable'
+        unit.deleted= True
         unit.save()
         return Response({"message": f"Unit {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
 
