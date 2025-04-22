@@ -28,18 +28,19 @@ class RevenueGroupedByView(APIView):
         if group_by == 'unit':
             qs = qs.values('unit__name').annotate(revenue=Sum('total_price')).order_by('unit__name')
             response_data = [{
-                'name': item['unit__name'],
-                'revenue': item['revenue'] or 0
+                'name': item['unit__name'] or 'Unknown',
+                'revenue': round(item['revenue'] or 0, 2)
             } for item in qs]
         else:
-            qs = qs.exclude(unit__isnull=True)  
             qs = qs.values('property__name').annotate(revenue=Sum('total_price')).order_by('property__name')
             response_data = [{
-                'name': item['property__name'],
-                'revenue': item['revenue'] or 0
+                'name': item['property__name'] or 'Unknown',
+                'revenue': round(item['revenue'] or 0, 2)
             } for item in qs]
 
         return Response(response_data)
+
+
 
 
 class BookingStatsView(APIView):
