@@ -35,6 +35,7 @@ class BookingWriteSerializer(serializers.ModelSerializer):
         # Fetch Unit
         unit = Unit.objects.get(id=unit_id)
         validated_data['unit'] = unit
+        validated_data['property'] = unit.property
         base_price = unit.price_per_night * total_days
 
         if guests_count > unit.max_capacity:
