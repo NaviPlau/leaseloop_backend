@@ -21,7 +21,7 @@ class RevenueGroupedByView(APIView):
         qs = Booking.objects.filter(created_at__range=(start_date, end_date), status='confirmed')
 
         if property_id and property_id != 'all':
-            qs = qs.filter(property_id=property_id)
+            qs = qs.filter(unit__property_id=property_id)
         if unit_id and unit_id != 'all':
             qs = qs.filter(unit_id=unit_id)
 
@@ -32,6 +32,7 @@ class RevenueGroupedByView(APIView):
                 'revenue': item['revenue'] or 0
             } for item in qs]
         else:
+            qs = qs.exclude(unit__isnull=True)  
             qs = qs.values('property__name').annotate(revenue=Sum('total_price')).order_by('property__name')
             response_data = [{
                 'name': item['property__name'],
