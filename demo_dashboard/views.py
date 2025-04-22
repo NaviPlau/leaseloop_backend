@@ -14,11 +14,14 @@ from promocodes.models import Promocodes
 from clients.models import Client
 from addresses.models import Address
 from bookings.models import Booking
+from invoices.models import Invoice
 import os
 from django.core.files import File
 User = get_user_model()
 
 from django.core.files.base import ContentFile
+
+from bookings.serializers import BookingWriteSerializer
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROPERTY_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'property_images')
@@ -54,6 +57,7 @@ def reset_guest_demo_data(request):
         )
 
     Booking.objects.filter(client__user=guest_user).delete()
+    Invoice.objects.filter(booking__unit__property__owner=guest_user).delete()
     Client.objects.filter(user=guest_user).delete()
     Unit.objects.filter(property__owner=guest_user).delete()
     Property.objects.filter(owner=guest_user).delete()
@@ -110,8 +114,8 @@ def reset_guest_demo_data(request):
                 description="A wonderful unit with all modern amenities.",
                 capacity=random.randint(2, 4),
                 max_capacity=random.randint(4, 6),
-                price_per_night=random.uniform(60, 180),
-                price_per_extra_person=random.uniform(10, 25),
+                price_per_night = round(random.uniform(60, 180), 2),
+                price_per_extra_person = round(random.uniform(10, 25), 2),
                 status=random.choice(['available', 'booked', 'maintenance', 'cleaning']),
                 type=random.choice(unit_types)
             )
@@ -130,7 +134,7 @@ def reset_guest_demo_data(request):
             Service.objects.create(
                 name=random.choice(["Breakfast", "Airport Shuttle", "Spa Access", "Cleaning"]),
                 type=random.choice(['one_time', 'per_day']),
-                price=random.uniform(15, 50),
+                price = round(random.uniform(15, 50), 2),
                 property=property
             )
     client_first_names = [
@@ -193,7 +197,7 @@ def reset_guest_demo_data(request):
     all_services = list(Service.objects.filter(property__owner=guest_user))
     all_units = [unit for units in units_by_property.values() for unit in units]
 
-    for _ in range(80):
+    for _ in range(200):
         client = random.choice(clients)
         unit = random.choice(all_units)
 
@@ -208,23 +212,29 @@ def reset_guest_demo_data(request):
         services = random.sample(all_services, k=random.randint(0, 2))
         promo = random.choice(promocodes + [None])
 
-        booking = Booking.objects.create(
-            unit=unit,
-            client=client,
-            check_in=check_in,
-            check_out=check_out,
-            guests_count=guests,
-            deposit_paid=random.choice([True, False]),
-            promo_code=promo
-        )
-        booking.services.set(services)
+
+        serializer = BookingWriteSerializer(data={
+            'unit': unit.id,
+            'client': client.id,
+            'check_in': check_in,
+            'check_out': check_out,
+            'guests_count': guests,
+            'deposit_paid': random.choice([True, False]),
+            'promo_code': promo.id if promo else None,
+            'status': random.choice(['pending', 'confirmed', 'cancelled']),
+            'services': [s.id for s in services]
+        })
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print("Booking error:", serializer.errors)
 
     return Response({
         "message": "Demo-Data successfully initialized.",
         "properties": len(properties),
         "units": len(all_units),
         "clients": len(clients),
-        "bookings": 80,
+        "bookings": 200,
         "services": len(all_services),
         "promocodes": len(promocodes),
     }, status=status.HTTP_201_CREATED)
