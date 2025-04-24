@@ -33,7 +33,7 @@ class PropertyAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         # List all properties of the user
-        properties = Property.objects.filter(owner=request.user).order_by('-created_at')
+        properties = Property.objects.filter(owner=request.user).order_by('name')
         properties = properties.filter(deleted=False)	
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
