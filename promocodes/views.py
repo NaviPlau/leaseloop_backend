@@ -27,7 +27,7 @@ class PromocodesAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         # List all promocodes
-        promocodes = Promocodes.objects.all().order_by('-created_at')
+        promocodes = Promocodes.objects.all().order_by('code')
         promocodes = promocodes.filter(deleted=False)
         serializer = PromocodesSerializer(promocodes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
