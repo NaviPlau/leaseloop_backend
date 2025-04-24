@@ -65,17 +65,21 @@ def reset_guest_demo_data(request):
 
     property_names = [
         "Seaside Escape", "Mountain View Retreat", "City Central Flat",
-        "Lakeside Lodge", "Forest Haven"
+        "Lakeside Lodge", "Forest Haven", "Desert Oasis",
+        "Countryside Cottage", "Urban Loft", "Beachfront Bungalow",
+        "Mountain View Villa", "City Central Studio", "Lakeside Cottage",
     ]
 
     unit_types = ['apartment', 'villa', 'house', 'studio', 'suite', 'cabin', 'condo', 'townhouse']
     unit_names = ["Deluxe", "Cozy", "Modern", "Rustic", "Elegant", "Sunny", "Quiet", "Spacious"]
     
-    street_names = ["Maple Street", "Oak Avenue", "Pine Road", "Cedar Lane", "Birch Way"]
-    cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]
-    countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium"]
+    street_names = ["Maple Street", "Oak Avenue", "Pine Road", "Cedar Lane", "Birch Way", "Willow Lane", "Elm Street", "Spruce Drive", "Hickory Boulevard", "Chestnut Street"]
+    cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Bremen", "Dresden", "Hannover", "Nuremberg", "Mannheim", "Karlsruhe", "Augsburg", "Wiesbaden", "Mönchengladbach", "Gelsenkirchen"]
+    countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium", "France", "Italy", "Spain", "Portugal", "Czech Republic"]
     phone_numbers = [
-        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654" ]
+        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 654321",
+        "+49 89 123456", "+49 69 654321", "+49 30 987654", "+49 40 123456", "+49 89 654321", "+49 69 987654",
+        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 654321",]
     properties = []
     units_by_property = {}
 
@@ -132,7 +136,7 @@ def reset_guest_demo_data(request):
 
         for _ in range(random.randint(1, 3)):
             Service.objects.create(
-                name=random.choice(["Breakfast", "Airport Shuttle", "Spa Access", "Cleaning"]),
+                name=random.choice(["Breakfast", "Airport Shuttle", "Spa Access", "Cleaning", "Gym Access", "Parking", "Laundry", "Wi-Fi"]),
                 type=random.choice(['one_time', 'per_day']),
                 price = round(random.uniform(15, 50), 2),
                 property=property
@@ -148,11 +152,13 @@ def reset_guest_demo_data(request):
 ]
     email_domains = ["example.com", "demo.org", "mail.dev", "sample.net"]
     client_street_names = ["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way"]
-    client_postal_codes = ["10115", "10117", "10119", "10178", "10179"]
-    client_cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]
-    client_countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium"]
+    client_postal_codes = ["10115", "10117", "10119", "10178", "10179", "10180", "10182", "10184", "10186", "10187"]
+    client_cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig"]
+    client_countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium", "France", "Italy", "Spain", "Portugal", "Czech Republic"]
     client_phone_numbers = [
-        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654" ]
+        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456",
+        "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456",
+        "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456",]
     clients = []
     for i in range(100):
         first = random.choice(client_first_names)
@@ -161,7 +167,7 @@ def reset_guest_demo_data(request):
 
         email = f"{first.lower()}.{last.lower()}{random.randint(1, 99)}@{domain}"
 
-        street_base = random.choice(["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way"])
+        street_base = random.choice(["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way", "Client Boulevard", "Client Drive", "Client Place", "Client Terrace", "Client Square"])
         street = f"{street_base} {random.randint(1, 150)}"
         phone = f"+49 30 {random.randint(100000, 999999)}"
 
