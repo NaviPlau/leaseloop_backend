@@ -25,7 +25,7 @@ class BookingAPIView(APIView):
             serializer = BookingReadSerializer(booking_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        all_bookings = Booking.objects.all().order_by('-created_at')
+        all_bookings = Booking.objects.all().order_by('check_in')
         bookings = all_bookings.filter(deleted=False)
         serializer = BookingReadSerializer(bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
