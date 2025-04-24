@@ -24,7 +24,7 @@ class ClientAPIView(APIView):
             
             serializer = ClientSerializer(client_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        clients = Client.objects.filter(user=request.user).order_by('-created_at')
+        clients = Client.objects.filter(user=request.user).order_by('first_name')
         clients = clients.filter(deleted=False)
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
