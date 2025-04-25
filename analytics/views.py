@@ -7,6 +7,8 @@ from services.models import Service
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from collections import defaultdict
+from properties.models import Property
+from units.models import Unit
 
 class RevenueGroupedByView(APIView):
     permission_classes = [IsAuthenticated]
@@ -72,14 +74,19 @@ class BookingStatsView(APIView):
         result = {
             'properties': {
                 str(pid): {
+                    'name': Property.objects.get(id=pid).name,  
                     'units': {
-                        str(uid): dict(unit_stats)
+                        str(uid): {
+                            **unit_stats,
+                            'name': Unit.objects.get(id=uid).name 
+                        }
                         for uid, unit_stats in units.items()
                     }
                 }
                 for pid, units in stats.items()
             }
         }
+
 
         return Response(result)
 
