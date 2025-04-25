@@ -111,7 +111,7 @@ def reset_guest_demo_data(request):
         properties.append(property)
         units_by_property[property.id] = []
 
-        for _ in range(random.randint(1, 4)):
+        for _ in range(random.randint(1, 3)):
             unit = Unit.objects.create(
                 property=property,
                 name=f"{random.choice(unit_names)} {random.choice(unit_types).capitalize()}",
@@ -160,7 +160,7 @@ def reset_guest_demo_data(request):
         "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456",
         "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456",]
     clients = []
-    for i in range(100):
+    for i in range(400):
         first = random.choice(client_first_names)
         last = random.choice(client_last_names)
         domain = random.choice(email_domains)
@@ -203,7 +203,7 @@ def reset_guest_demo_data(request):
     all_services = list(Service.objects.filter(property__owner=guest_user))
     all_units = [unit for units in units_by_property.values() for unit in units]
 
-    for _ in range(200):
+    for _ in range(500):
         client = random.choice(clients)
         unit = random.choice(all_units)
 

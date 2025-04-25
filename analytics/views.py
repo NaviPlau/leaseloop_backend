@@ -9,7 +9,10 @@ from django.utils.dateparse import parse_date
 from collections import defaultdict
 from properties.models import Property
 from units.models import Unit
-
+from django.db.models.functions import TruncYear, TruncMonth
+from django.db.models import Q, Count
+from django.utils.timezone import make_aware
+from django.utils.timezone import is_naive
 class RevenueGroupedByView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -120,3 +123,77 @@ class ServiceSalesView(APIView):
         return Response(data)
 
 
+class CancelledBookingsStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        start_date = parse_date(request.GET.get('from'))
+        end_date = parse_date(request.GET.get('to'))
+        group_by = request.GET.get('group_by', 'year')
+        property_id = request.GET.get('property')
+        unit_id = request.GET.get('unit')
+
+        if not start_date or not end_date:
+            return Response({'error': 'Missing date range.'}, status=400)
+
+        start_date = datetime.combine(start_date, datetime.min.time())
+        end_date = datetime.combine(end_date, datetime.max.time())
+
+        if is_naive(start_date):
+            start_date = make_aware(start_date)
+        if is_naive(end_date):
+            end_date = make_aware(end_date)
+
+        bookings = Booking.objects.filter(check_in__range=(start_date, end_date))
+
+        if property_id and property_id != 'all':
+            bookings = bookings.filter(unit__property_id=property_id)
+        if unit_id and unit_id != 'all':
+            bookings = bookings.filter(unit_id=unit_id)
+
+        if group_by == 'year':
+            bookings = bookings.annotate(period=TruncYear('check_in'))
+        else:
+            bookings = bookings.annotate(period=TruncMonth('check_in'))
+
+        grouped = bookings.values('period').annotate(
+            total=Count('id'),
+            cancelled=Count('id', filter=Q(status='cancelled'))
+        ).order_by('period')
+
+        categories = []
+        total_data = []
+        cancelled_data = []
+        cancel_rate_data = []
+
+        for entry in grouped:
+            period = entry['period']
+            period_key = period.strftime('%Y-%m') if group_by == 'month' else period.strftime('%Y')
+            total = entry['total']
+            cancelled = entry['cancelled']
+
+            categories.append(period_key)
+            total_data.append(total)
+            cancelled_data.append(cancelled)
+            cancel_rate_data.append(round((cancelled / total * 100) if total > 0 else 0, 2))
+
+        return Response({
+            'categories': categories,
+            'series': [
+                {
+                    'name': 'Total Bookings',
+                    'type': 'column',
+                    'data': total_data
+                },
+                {
+                    'name': 'Cancelled Bookings',
+                    'type': 'column',
+                    'data': cancelled_data
+                },
+                {
+                    'name': 'Cancellation Rate (%)',
+                    'type': 'line',
+                    'data': cancel_rate_data
+                }
+            ]
+        })
