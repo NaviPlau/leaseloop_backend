@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from bookings.models import Booking
 from units.models import Unit
+from clients.models import Client
 from calendar import monthrange
 
 

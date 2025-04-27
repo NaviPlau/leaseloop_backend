@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from invoices.models import Invoice
 from invoices.utils import generate_invoice_number, generate_invoice_pdf
 from bookings.models import Booking
+from django.utils import timezone
 
 
 @receiver(post_save, sender=Booking)
@@ -35,3 +36,8 @@ def create_or_update_invoice(sender, instance, **kwargs):
     #     email.attach_file(invoice.pdf_file.path)
 
     # email.send()
+
+
+def update_active_bookings():
+        today = timezone.now().date()
+        Booking.objects.filter(check_out__gte=today).update(active=False)

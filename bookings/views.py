@@ -8,6 +8,7 @@ from .models import Booking, Promocodes
 from .serializers import BookingReadSerializer, BookingWriteSerializer
 from promocodes.serializers import PromocodesSerializer
 from django.utils import timezone
+from .signals import update_active_bookings
 
 # Create your views here.
 
@@ -20,6 +21,7 @@ class BookingAPIView(APIView):
         return BookingReadSerializer
 
     def get(self, request, pk=None):
+        update_active_bookings()
         if pk:
             booking_obj = get_object_or_404(Booking, pk=pk)
             serializer = BookingReadSerializer(booking_obj)

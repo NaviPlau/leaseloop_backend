@@ -20,6 +20,7 @@ class Booking(models.Model):
     deposit_amount = models.FloatField(default=0.0, )
     base_renting_price = models.FloatField(default=0.0, )
     total_services_price = models.FloatField(default=0.0,)
+    active = models.BooleanField(default=True)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
