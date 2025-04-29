@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'addresses',
     'demo_dashboard',
     'invoices',
-    
+    'analytics',
 ]
 
 MIDDLEWARE = [

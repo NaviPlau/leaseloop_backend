@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from ..models import UserLogo
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -59,5 +60,40 @@ class RegistrationSerializer(serializers.ModelSerializer):
         validated_data['username'] = validated_data['email']
         user = User.objects.create_user(**validated_data)
         user.is_active = False 
+        user.save()
+        return user
+    
+
+class LogoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserLogo
+        fields = ('id', 'logo', 'user')
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    class Meta:
+        model = User
+        fields = ('old_password', 'new_password', 'confirm_password')
+
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = self.instance
+
+        # Check if old password is correct
+        if not user.check_password(data['old_password']):
+            raise serializers.ValidationError({"detail": "Old password is incorrect."})
+
+        # Check if new passwords match
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"detail": "Passwords must match."})
+
+        return data
+    
+    def save(self):
+        user = self.instance  # this is the user object passed in the view
+        user.set_password(self.validated_data['new_password'])
         user.save()
         return user

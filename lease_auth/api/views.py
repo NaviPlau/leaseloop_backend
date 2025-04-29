@@ -1,16 +1,17 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from rest_framework.response import Response
-from lease_auth.api.serializers import RegistrationSerializer
+from lease_auth.api.serializers import RegistrationSerializer, LogoSerializer, ChangePasswordSerializer
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from lease_auth.api.utils import send_welcome_email, send_password_reset_email, clean_expired_tokens
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from lease_auth.models import User
-from lease_auth.models import PasswordResetToken , LoginToken
+from lease_auth.models import PasswordResetToken , LoginToken, UserLogo
+
 import uuid
 
 class RegistrationView(APIView):
@@ -213,3 +214,34 @@ class TokenLoginView(APIView):
             }, status=status.HTTP_200_OK)
         except LoginToken.DoesNotExist:
             return Response({"message": "Token has expired. Please log in again."}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+class LogoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        logo = UserLogo.objects.filter(user=user).first()
+        serializer = LogoSerializer(logo)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        logo = UserLogo.objects.filter(user=user).first()
+        serializer = LogoSerializer(logo, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        serializer = ChangePasswordSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
