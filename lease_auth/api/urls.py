@@ -13,4 +13,7 @@ urlpatterns = [
   path('logo/', views.LogoView.as_view()),
   path('logo/<int:pk>/', views.LogoView.as_view()),
   path('change-password/', views.ChangePasswordView.as_view()),
+  path('change-email/', views.ChangeEmailView.as_view()),
+  path('change-personals/', views.ChangeProfileDataView.as_view()),
+  path('get-full-user-data/', views.GetFullUserDataView.as_view()),
 ]

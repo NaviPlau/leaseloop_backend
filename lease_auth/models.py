@@ -30,12 +30,6 @@ class LoginToken(models.Model):
         """
         return now() < self.created_at + timedelta(days=7)
 
-class Address(models.Model):
-  user = models.ForeignKey(User, on_delete=models.CASCADE)
-  address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
-
-  def __str__(self):
-    return self.address
   
 
 class UserLogo(models.Model):
@@ -48,11 +42,12 @@ class UserLogo(models.Model):
 
 
 class Profile(models.Model):
-  user = models.ForeignKey(User, on_delete=models.CASCADE)
+  user = models.OneToOneField(User, on_delete=models.CASCADE)
   data_filled = models.BooleanField(default=False)
   tax_id = models.CharField(max_length=15, default='000000000')
+  address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
 
   def __str__(self):
-    return self.user
+    return str(self.user)
 
 

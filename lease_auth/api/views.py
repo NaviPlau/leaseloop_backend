@@ -4,13 +4,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from rest_framework.response import Response
-from lease_auth.api.serializers import RegistrationSerializer, LogoSerializer, ChangePasswordSerializer
+from lease_auth.api.serializers import RegistrationSerializer, LogoSerializer, ChangePasswordSerializer, ChangeEmailSerializer, ChangeProfileDataSerializer, GetFullUserDataSerializer
 from rest_framework import status
-from lease_auth.api.utils import send_welcome_email, send_password_reset_email, clean_expired_tokens
+from lease_auth.api.utils import send_welcome_email, send_password_reset_email, clean_expired_tokens, send_changed_email
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from lease_auth.models import User
-from lease_auth.models import PasswordResetToken , LoginToken, UserLogo
+from lease_auth.models import PasswordResetToken , LoginToken, UserLogo, Profile
 
 import uuid
 
@@ -97,7 +97,7 @@ class LoginView(APIView):
             LoginToken.objects.create(user=user, token=token)
 
             return Response(
-                {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "token": token},
+                {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "token": token, "email": user.email},
                 status=status.HTTP_200_OK
             )
         except User.DoesNotExist:
@@ -210,7 +210,8 @@ class TokenLoginView(APIView):
                 "id": user.id,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "token": login_token.token
+                "token": login_token.token,
+                "email": user.email
             }, status=status.HTTP_200_OK)
         except LoginToken.DoesNotExist:
             return Response({"message": "Token has expired. Please log in again."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -245,3 +246,39 @@ class ChangePasswordView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ChangeEmailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+
+        serializer = ChangeEmailSerializer(user, data=request.data)
+        if serializer.is_valid():
+            new_email = serializer.validated_data['new_email']
+            send_changed_email(user.email, user.first_name, new_email)
+            serializer.save()
+            return Response({"detail": "Email changed successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ChangeProfileDataView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        serializer = ChangeProfileDataSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class GetFullUserDataView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        serializer = GetFullUserDataSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reset Your Password</title>
+    <title>You succesfully changed your email</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -56,15 +56,18 @@
         </div> {% endcomment %}
         <div class="content">
             <h1>Hello {{ user_name }},</h1>
-            <p>It seems like you requested a password reset. Click the button below to reset your password:</p>
+            <p>You successfully changed your email to {{ new_email }}</p>
+            <p>In future you will receive emails to {{ new_email }}</p>
             <div class="button">
-                <a href="{{ reset_link }}">Reset Password</a>
+                <a href="https://lease-loop.com">Login to your account</a>
             </div>
         </div>
         <div class="footer">
-            <p>If you didn’t request this, you can safely ignore this email.<br><br>
-            Best regards,<br>
-            Your LeaseLoop Team</p>
+            <p>
+                If you didn’t request this, you can safely ignore this email.<br><br>
+                Best regards,<br>
+                Your LeaseLoop Team
+            </p>
         </div>
     </div>
 </body>
