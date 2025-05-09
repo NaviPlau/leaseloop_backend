@@ -37,3 +37,10 @@ class PropertySerializer(serializers.ModelSerializer):
                 setattr(instance.address, attr, value)
             instance.address.save()
         return super().update(instance, validated_data)
+    
+    def get_image_url(self, obj):
+        first_image = obj.images.first()
+        if first_image and first_image.image:
+            request = self.context.get('request')
+            return request.build_absolute_uri(first_image.image.url) if request else first_image.image.url
+        return None    

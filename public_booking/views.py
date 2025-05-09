@@ -16,8 +16,9 @@ class PublicOwnerBookingPageView(APIView):
 
         properties = Property.objects.filter(owner=owner, active=True, deleted=False)
 
-        serializer = PublicOwnerBookingPageSerializer({
-            'owner': owner,
-            'properties': properties
-        })
+        serializer = PublicOwnerBookingPageSerializer(
+            {'owner': owner, 'properties': properties},
+            context={'request': request}
+        )
+
         return Response(serializer.data)
