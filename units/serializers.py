@@ -34,3 +34,12 @@ class UnitSerializer(serializers.ModelSerializer):
         instance.active = validated_data.get('active', instance.active)
         instance.save()
         return instance
+    
+    def get_image_url(self, obj):
+        first_image = obj.images.first()
+        if first_image and first_image.image:
+            request = self.context.get('request')
+            return request.build_absolute_uri(first_image.image.url) if request else first_image.image.url
+        return None
+    
+

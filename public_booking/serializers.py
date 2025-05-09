@@ -4,6 +4,8 @@ from units.models import Unit
 from services.models import Service
 from bookings.models import Booking  
 from django.contrib.auth import get_user_model
+from properties.serializers import PropertySerializer
+from units.serializers import UnitSerializer 
 
 User = get_user_model()
 
@@ -11,31 +13,18 @@ User = get_user_model()
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = '__all__'
-
-class UnitSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Unit
-        fields = '__all__'
+        fields = 'check_in', 'check_out', 'status', 'unit'
 
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = '__all__'
 
-class PropertySerializer(serializers.ModelSerializer):
-    units = UnitSerializer(many=True, read_only=True)
-    services = ServiceSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Property
-        fields = ['id', 'name', 'description', 'address', 'units', 'services']
-
 
 class PublicOwnerBookingPageSerializer(serializers.Serializer):
     owner = serializers.SerializerMethodField()
-    properties = PropertySerializer(many=True)
-    bookings = serializers.SerializerMethodField() 
+    properties = serializers.SerializerMethodField()
+    bookings = serializers.SerializerMethodField()
 
     def get_owner(self, obj):
         owner = obj['owner']
@@ -44,6 +33,10 @@ class PublicOwnerBookingPageSerializer(serializers.Serializer):
             'name': owner.get_full_name() or owner.username,
             'slug': getattr(owner, 'slug', owner.username)
         }
+
+    def get_properties(self, obj):
+        properties = obj['properties']
+        return PropertySerializer(properties, many=True, context=self.context).data
 
     def get_bookings(self, obj):
         owner = obj['owner']
