@@ -22,24 +22,21 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class PublicOwnerBookingPageSerializer(serializers.Serializer):
-    owner = serializers.SerializerMethodField()
+    owners = serializers.SerializerMethodField()
     properties = serializers.SerializerMethodField()
-    bookings = serializers.SerializerMethodField()
 
-    def get_owner(self, obj):
-        owner = obj['owner']
-        return {
-            'id': owner.id,
-            'name': owner.get_full_name() or owner.username,
-            'slug': getattr(owner, 'slug', owner.username)
-        }
+    def get_owners(self, obj):
+        return [
+            {
+                'id': owner.id,
+                'name': owner.get_full_name() or owner.username,
+                'slug': getattr(owner, 'slug', owner.username)
+            }
+            for owner in obj['owners']
+        ]
 
     def get_properties(self, obj):
-        properties = obj['properties']
-        return PropertySerializer(properties, many=True, context=self.context).data
+        return PropertySerializer(obj['properties'], many=True, context=self.context).data
 
-    def get_bookings(self, obj):
-        owner = obj['owner']
-        unit_ids = Unit.objects.filter(property__owner=owner).values_list('id', flat=True)
-        bookings = Booking.objects.filter(unit_id__in=unit_ids)
-        return BookingSerializer(bookings, many=True).data
+
+
