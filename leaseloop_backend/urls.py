@@ -33,6 +33,7 @@ urlpatterns = [
     path('lease-loop/api/invoices/', include('invoices.urls')),
     path('lease-loop/api/analytics/', include("analytics.urls")),
     path('lease-loop/api/public/', include('public_booking.urls')),
+    path('lease-loop/api/', include('contact.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

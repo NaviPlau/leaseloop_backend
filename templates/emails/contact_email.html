@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>You succesfully changed your email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .content {
+            text-align: center;
+            padding: 20px;
+        }
+        .content h1 {
+            color: #000;
+        }
+        .content p {
+            color: #555;
+        }
+        .button {
+            margin-top: 20px;
+        }
+        .button a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2E3EDF;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        {% comment %} <div class="banner">
+            <img src="https://paul-ivan.com/assets/img/extras/Capa_1.webp" alt="Reset Password Banner">
+        </div> {% endcomment %}
+        <div class="content">
+            <h1>Support ticket from {{ user_name }}, with email {{ user_email }}</h1>
+            <h2>Theme: {{ theme }}</h2>
+            <p>Sender message: {{ message }}</p>
+            <div class="button">
+                <a href="mailto:{{ user_email }}">Answer</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
