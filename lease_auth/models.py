@@ -46,7 +46,7 @@ class Profile(models.Model):
   data_filled = models.BooleanField(default=False)
   tax_id = models.CharField(max_length=15, default='000000000')
   address = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
-
+  logo = models.ForeignKey(UserLogo, on_delete=models.CASCADE, blank=True, null=True)
   def __str__(self):
     return str(self.user)
 

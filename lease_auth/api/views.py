@@ -37,7 +37,7 @@ class RegistrationView(APIView):
             send_welcome_email(
                 user_email=user.email,
                 user_name=user.username,
-                activation_link=f"https://lease-loop.com/activate-account/{uid}/{token}/"
+                activation_link=f"https://lease-loop.com/owner/activate-account/{uid}/{token}/"
             )
             return Response({
                 'message': 'You registered successfully! Please check your email to activate your account. Otherwise, you can not log in.',
@@ -126,7 +126,7 @@ class ForgotPasswordView(APIView):
             user = User.objects.get(email=email)
             token = str(uuid.uuid4()) 
             PasswordResetToken.objects.create(user=user, token=token)
-            reset_link = f"https://lease-loop.com/reset-password/{token}/"
+            reset_link = f"https://lease-loop.com/owner/reset-password/{token}/"
             send_password_reset_email(
                 user_email=user.email,
                 user_name=user.username,
