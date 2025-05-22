@@ -34,7 +34,7 @@ class LoginToken(models.Model):
 
 class UserLogo(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  logo = models.FileField(upload_to='logos/')
+  logo = models.FileField(upload_to='logos/', blank=True, null=True)
 
   def __str__(self):
     return self.user
