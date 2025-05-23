@@ -7,10 +7,11 @@ from .serializers import UnitSerializer, UnitImageSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
+from utils.custom_pagination import CustomPageNumberPagination
 
 class UnitAPIView(APIView):
-    #permission_classes = [permissions.IsAuthenticated]
     permission_classes = [AllowAny]
+
     def get(self, request, pk=None, property_id=None):
         """
         Gets a unit or a list of all units of the user.
@@ -28,12 +29,15 @@ class UnitAPIView(APIView):
             return Response(UnitSerializer(unit).data, status=status.HTTP_200_OK)
 
         if property_id:
-            units = Unit.objects.filter(property_id=property_id)
-            return Response(UnitSerializer(units, many=True).data, status=status.HTTP_200_OK)
+            units = Unit.objects.filter(property_id=property_id, deleted=False)
+        else:
+            units = Unit.objects.filter(deleted=False)
 
-        units = Unit.objects.all()
-        active_units = units.filter(deleted=False)
-        return Response(UnitSerializer(active_units, many=True).data, status=status.HTTP_200_OK)
+        paginator = CustomPageNumberPagination()
+        paginated_units = paginator.paginate_queryset(units, request)
+        serialized = UnitSerializer(paginated_units, many=True)
+
+        return paginator.get_paginated_response(serialized.data)
 
     def post(self, request):
         """

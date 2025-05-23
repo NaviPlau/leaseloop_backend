@@ -7,25 +7,35 @@ from rest_framework.permissions import AllowAny
 from .serializers import ClientSerializer
 from .models import Client
 from bookings .models import Booking
+
+from utils.custom_pagination import CustomPageNumberPagination
 # Create your views here.
+
+
 class ClientAPIView(APIView):
-    
     permission_classes = [AllowAny]
-    
+
     def get(self, request, pk=None):
         if pk:
             client_obj = get_object_or_404(Client, pk=pk)
-            
+
             if client_obj.user != request.user:
                 return Response(
                     {'error': 'Not authorized to see this client.'},
                     status=status.HTTP_403_FORBIDDEN
                 )
-            
+
             serializer = ClientSerializer(client_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        clients = Client.objects.filter(user=request.user).order_by('first_name')
-        clients = clients.filter(deleted=False)
+
+        clients = Client.objects.filter(user=request.user, deleted=False).order_by('first_name')
+        
+        paginator = CustomPageNumberPagination()
+        page = paginator.paginate_queryset(clients, request)
+        if page is not None:
+            serializer = ClientSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
