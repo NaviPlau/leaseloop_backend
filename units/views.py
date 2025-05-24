@@ -33,11 +33,17 @@ class UnitAPIView(APIView):
         else:
             units = Unit.objects.filter(deleted=False)
 
-        paginator = CustomPageNumberPagination()
-        paginated_units = paginator.paginate_queryset(units, request)
-        serialized = UnitSerializer(paginated_units, many=True)
+        # ✅ Only paginate if `?page=` is provided
+        if 'page' in request.query_params:
+            paginator = CustomPageNumberPagination()
+            paginated_units = paginator.paginate_queryset(units, request)
+            if paginated_units is not None:
+                serialized = UnitSerializer(paginated_units, many=True)
+                return paginator.get_paginated_response(serialized.data)
 
-        return paginator.get_paginated_response(serialized.data)
+        # ❌ No pagination → return all units
+        serialized = UnitSerializer(units, many=True)
+        return Response(serialized.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """

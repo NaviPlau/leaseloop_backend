@@ -29,13 +29,16 @@ class ClientAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         clients = Client.objects.filter(user=request.user, deleted=False).order_by('first_name')
-        
-        paginator = CustomPageNumberPagination()
-        page = paginator.paginate_queryset(clients, request)
-        if page is not None:
-            serializer = ClientSerializer(page, many=True)
-            return paginator.get_paginated_response(serializer.data)
 
+        # ✅ Only apply pagination if ?page is in the query parameters
+        if 'page' in request.query_params:
+            paginator = CustomPageNumberPagination()
+            page = paginator.paginate_queryset(clients, request)
+            if page is not None:
+                serializer = ClientSerializer(page, many=True)
+                return paginator.get_paginated_response(serializer.data)
+
+        # ❌ No pagination → return all clients
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         

@@ -7,6 +7,7 @@ from .models import Property , PropertyImage
 from .serializers import PropertySerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import PropertyImageSerializer
+from utils.custom_pagination import CustomPageNumberPagination
 
 
 class PropertyAPIView(APIView):
@@ -25,7 +26,7 @@ class PropertyAPIView(APIView):
 
             if property_obj.owner != request.user:
                 return Response(
-                    {'error': 'Not authorized, to see this property.'},
+                    {'error': 'Not authorized to see this property.'},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
@@ -33,8 +34,17 @@ class PropertyAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         # List all properties of the user
-        properties = Property.objects.filter(owner=request.user).order_by('name')
-        properties = properties.filter(deleted=False)	
+        properties = Property.objects.filter(owner=request.user, deleted=False).order_by('name')
+
+        # ✅ Only apply pagination if ?page= is provided
+        if 'page' in request.query_params:
+            paginator = CustomPageNumberPagination()
+            page = paginator.paginate_queryset(properties, request)
+            if page is not None:
+                serializer = PropertySerializer(page, many=True)
+                return paginator.get_paginated_response(serializer.data)
+
+        # ❌ Return all properties without pagination
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

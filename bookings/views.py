@@ -1,14 +1,12 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
-from .models import Booking, Promocodes
 from .serializers import BookingReadSerializer, BookingWriteSerializer
-from promocodes.serializers import PromocodesSerializer
-from django.utils import timezone
 from .signals import update_active_bookings
+from utils.custom_pagination import CustomPageNumberPagination
+from .models import Booking
 
 # Create your views here.
 
@@ -22,13 +20,23 @@ class BookingAPIView(APIView):
 
     def get(self, request, pk=None):
         update_active_bookings()
+
         if pk:
             booking_obj = get_object_or_404(Booking, pk=pk)
             serializer = BookingReadSerializer(booking_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        all_bookings = Booking.objects.all().order_by('check_in')
-        bookings = all_bookings.filter(deleted=False)
+        bookings = Booking.objects.filter(deleted=False).order_by('check_in')
+
+        # ✅ Apply pagination only if ?page is provided
+        if 'page' in request.query_params:
+            paginator = CustomPageNumberPagination()
+            page = paginator.paginate_queryset(bookings, request)
+            if page is not None:
+                serializer = BookingReadSerializer(page, many=True)
+                return paginator.get_paginated_response(serializer.data)
+
+        # ❌ No pagination → return all results
         serializer = BookingReadSerializer(bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

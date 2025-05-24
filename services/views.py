@@ -6,6 +6,7 @@ from properties.models import Property
 from .serializers import ServiceSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
+from utils.custom_pagination import CustomPageNumberPagination
 
 class ServiceAPIView(APIView):
     #permission_classes = [permissions.IsAuthenticated]
@@ -17,9 +18,9 @@ class ServiceAPIView(APIView):
         if pk:
             service_obj = get_object_or_404(Service, pk=pk)
 
-            if service_obj.proerty.owner != request.user:
+            if service_obj.property.owner != request.user:
                 return Response(
-                    {'error': 'Not authorized, to see this service.'},
+                    {'error': 'Not authorized to see this service.'},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
@@ -27,8 +28,17 @@ class ServiceAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         # List all services of the user
-        services = Service.objects.filter(property__owner=request.user).order_by('-created_at')
-        services = services.filter(deleted=False)	
+        services = Service.objects.filter(property__owner=request.user, deleted=False).order_by('-created_at')
+
+        # ✅ Only apply pagination if ?page is provided
+        if 'page' in request.query_params:
+            paginator = CustomPageNumberPagination()
+            page = paginator.paginate_queryset(services, request)
+            if page is not None:
+                serializer = ServiceSerializer(page, many=True)
+                return paginator.get_paginated_response(serializer.data)
+
+        # ❌ Return all services without pagination
         serializer = ServiceSerializer(services, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         

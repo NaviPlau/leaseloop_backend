@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from .models import Promocodes
 from .serializers import PromocodesSerializer
-from django.utils import timezone
+from utils.custom_pagination import CustomPageNumberPagination
 # Create your views here.
 
 class PromocodesAPIView(APIView):
@@ -17,20 +17,25 @@ class PromocodesAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk=None):
-        """
-        Gets a promocode or a list of all promocodes.
-        """
         if pk:
-            # Fetch the specific promocode by its ID
             promocode_obj = get_object_or_404(Promocodes, pk=pk)
             serializer = PromocodesSerializer(promocode_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # List all promocodes
-        promocodes = Promocodes.objects.all().order_by('code')
-        promocodes = promocodes.filter(deleted=False)
+        promocodes = Promocodes.objects.filter(deleted=False).order_by('code')
+
+        # ✅ Apply pagination only if 'page' is in query params
+        if 'page' in request.query_params:
+            paginator = CustomPageNumberPagination()
+            page = paginator.paginate_queryset(promocodes, request)
+            if page is not None:
+                serializer = PromocodesSerializer(page, many=True)
+                return paginator.get_paginated_response(serializer.data)
+
+        # ❌ No pagination → return all results
         serializer = PromocodesSerializer(promocodes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     def post(self, request):
         """
