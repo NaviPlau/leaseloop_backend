@@ -8,22 +8,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from utils.custom_pagination import CustomPageNumberPagination
+from django.db.models import Q
+from django.db.models.functions import Cast
+from django.db.models import CharField
 
 class UnitAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk=None, property_id=None):
-        """
-        Gets a unit or a list of all units of the user.
-
-        Args:
-            request: The request object
-            pk: The id of the unit to get
-            property_id: The id of the property to get the units of
-
-        Returns:
-            Response: The unit or the list of units in JSON format
-        """
         if pk:
             unit = get_object_or_404(Unit, pk=pk)
             return Response(UnitSerializer(unit).data, status=status.HTTP_200_OK)
@@ -33,6 +25,20 @@ class UnitAPIView(APIView):
         else:
             units = Unit.objects.filter(deleted=False)
 
+        # 🔍 Apply search if ?search= is present
+        search = request.query_params.get('search')
+        if search:
+            # Annotate max_capacity as string so we can search it using icontains
+            units = units.annotate(
+                max_capacity_str=Cast('max_capacity', CharField())
+            ).filter(
+                Q(name__icontains=search) |
+                Q(property__name__icontains=search) |
+                Q(max_capacity_str__icontains=search) |
+                Q(status__icontains=search) | 
+                Q(description__icontains=search)
+            )
+
         # ✅ Only paginate if `?page=` is provided
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
@@ -41,7 +47,7 @@ class UnitAPIView(APIView):
                 serialized = UnitSerializer(paginated_units, many=True)
                 return paginator.get_paginated_response(serialized.data)
 
-        # ❌ No pagination → return all units
+        # ❌ No pagination → return all
         serialized = UnitSerializer(units, many=True)
         return Response(serialized.data, status=status.HTTP_200_OK)
 

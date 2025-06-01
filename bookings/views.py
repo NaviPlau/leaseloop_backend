@@ -7,6 +7,7 @@ from .serializers import BookingReadSerializer, BookingWriteSerializer
 from .signals import update_active_bookings
 from utils.custom_pagination import CustomPageNumberPagination
 from .models import Booking
+from django.db.models import Q
 
 # Create your views here.
 
@@ -18,6 +19,8 @@ class BookingAPIView(APIView):
             return BookingWriteSerializer
         return BookingReadSerializer
 
+    from django.db.models import Q
+
     def get(self, request, pk=None):
         update_active_bookings()
 
@@ -26,9 +29,26 @@ class BookingAPIView(APIView):
             serializer = BookingReadSerializer(booking_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        bookings = Booking.objects.filter(deleted=False).order_by('check_in')
+        # 🟢 Base query
+        bookings = Booking.objects.filter(deleted=False)
 
-        # ✅ Apply pagination only if ?page is provided
+        # 🔍 Apply search if ?search= is present
+        search = request.query_params.get('search')
+        if search:
+            bookings = bookings.filter(
+                Q(client__first_name__icontains=search) |
+                Q(client__last_name__icontains=search) |
+                Q(property__name__icontains=search) |
+                Q(unit__name__icontains=search) | 
+                Q(property__address__city__icontains=search) |
+                Q(property__address__country__icontains=search) |
+                Q(property__address__street__icontains=search) 
+            )
+
+        # 🧾 Order by check-in
+        bookings = bookings.order_by('check_in')
+
+        # 📄 Paginate if ?page= is present
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(bookings, request)
@@ -36,9 +56,10 @@ class BookingAPIView(APIView):
                 serializer = BookingReadSerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # ❌ No pagination → return all results
+        # 🧾 Return all if no pagination
         serializer = BookingReadSerializer(bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     
     def post(self, request):
         serializer = BookingWriteSerializer(data=request.data)
