@@ -8,6 +8,7 @@ from .serializers import PropertySerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import PropertyImageSerializer
 from utils.custom_pagination import CustomPageNumberPagination
+from django.db.models import Q
 
 
 class PropertyAPIView(APIView):
@@ -33,10 +34,22 @@ class PropertyAPIView(APIView):
             serializer = PropertySerializer(property_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # List all properties of the user
-        properties = Property.objects.filter(owner=request.user, deleted=False).order_by('name')
+        # 🟢 Start with base queryset
+        properties = Property.objects.filter(owner=request.user, deleted=False)
 
-        # ✅ Only apply pagination if ?page= is provided
+        # 🔍 Apply search if ?search= is provided
+        search = request.query_params.get('search')
+        if search:
+            properties = properties.filter(
+                Q(name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(address__city__icontains=search)
+            )
+
+        # 🧾 Order by name
+        properties = properties.order_by('name')
+
+        # 📄 Pagination if ?page=
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(properties, request)
@@ -44,7 +57,7 @@ class PropertyAPIView(APIView):
                 serializer = PropertySerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # ❌ Return all properties without pagination
+        # ❌ No pagination → return all
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

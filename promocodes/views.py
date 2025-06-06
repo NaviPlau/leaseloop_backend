@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from .models import Promocodes
 from .serializers import PromocodesSerializer
 from utils.custom_pagination import CustomPageNumberPagination
+from django.db.models import Q
 # Create your views here.
 
 class PromocodesAPIView(APIView):
@@ -22,7 +23,20 @@ class PromocodesAPIView(APIView):
             serializer = PromocodesSerializer(promocode_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        promocodes = Promocodes.objects.filter(deleted=False).order_by('code')
+        # 🟢 Base queryset
+        promocodes = Promocodes.objects.filter(deleted=False)
+
+        # 🔍 Search logic
+        search = request.query_params.get('search')
+        if search:
+            promocodes = promocodes.filter(
+                Q(code__icontains=search) |
+                Q(description__icontains=search)
+                # | Q(description__icontains=search)  # Uncomment if you have this field
+            )
+
+        # 🧾 Order by code
+        promocodes = promocodes.order_by('code')
 
         # ✅ Apply pagination only if 'page' is in query params
         if 'page' in request.query_params:

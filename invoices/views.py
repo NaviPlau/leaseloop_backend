@@ -4,9 +4,13 @@ from rest_framework import status
 from bookings.models import Booking
 from .models import Invoice
 from .utils import generate_invoice_pdf
-from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
 from .serializers import InvoiceSerializer
 from rest_framework.permissions import IsAuthenticated
+from utils.custom_pagination import CustomPageNumberPagination
+from django.db.models import Q
+from .utils import generate_invoice_number
+
 
 @api_view(['POST'])
 def generate_invoice_from_booking(request, booking_id):
@@ -50,17 +54,41 @@ def generate_invoice_from_booking(request, booking_id):
 
 
 
-class OwnerInvoiceListView(ListAPIView):
-    serializer_class = InvoiceSerializer
+class OwnerInvoiceListView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
+    def get(self, request):
         """
-        Returns a queryset of invoices for the current user.
+        Returns a list of invoices where the logged-in user is the owner
+        of the related booking's property. Supports ?search= and ?page=
+        """
+        user = request.user
 
-        :return: A list of Invoice objects
-        """
-        user = self.request.user
-        return Invoice.objects.all()
-       # return Invoice.objects.filter(booking__client__user=user)
-       # TODO: add filter for user
+        # 🟢 Base queryset
+        invoices = Invoice.objects.filter(booking__property__owner=user)
+
+        # 🔍 Optional search filter
+        search = request.query_params.get('search')
+        if search:
+            invoices = invoices.filter(
+                Q(booking__client__first_name__icontains=search) |
+                Q(booking__client__last_name__icontains=search) |
+                Q(booking__property__name__icontains=search) |
+                Q(booking__unit__name__icontains=search) |
+                Q(invoice_number__icontains=search) |
+                Q(booking__property__address__city__icontains=search) |
+                Q(booking__property__address__country__icontains=search) |
+                Q(booking__property__address__street__icontains=search)
+            )
+
+        # ✅ Pagination if ?page= is provided
+        if 'page' in request.query_params:
+            paginator = CustomPageNumberPagination()
+            page = paginator.paginate_queryset(invoices, request)
+            if page is not None:
+                serializer = InvoiceSerializer(page, many=True)
+                return paginator.get_paginated_response(serializer.data)
+
+        # ❌ No pagination → return all
+        serializer = InvoiceSerializer(invoices, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

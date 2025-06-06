@@ -13,7 +13,6 @@ class Invoice(models.Model):
     invoice_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     booking = models.OneToOneField(Booking, on_delete=models.SET_NULL, null=True, related_name='invoice')
     pdf_file = models.FileField(upload_to='invoices/', blank=True, null=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

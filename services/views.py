@@ -7,6 +7,7 @@ from .serializers import ServiceSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from utils.custom_pagination import CustomPageNumberPagination
+from django.db.models import Q
 
 class ServiceAPIView(APIView):
     #permission_classes = [permissions.IsAuthenticated]
@@ -27,10 +28,20 @@ class ServiceAPIView(APIView):
             serializer = ServiceSerializer(service_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # List all services of the user
-        services = Service.objects.filter(property__owner=request.user, deleted=False).order_by('-created_at')
+        # 🟢 Base queryset
+        services = Service.objects.filter(property__owner=request.user, deleted=False)
 
-        # ✅ Only apply pagination if ?page is provided
+        # 🔍 Apply search if provided
+        search = request.query_params.get('search')
+        if search:
+            services = services.filter(
+                Q(name__icontains=search)
+            )
+
+        # 📄 Order by creation date
+        services = services.order_by('-created_at')
+
+        # ✅ Only paginate if ?page is in query
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(services, request)
@@ -38,7 +49,7 @@ class ServiceAPIView(APIView):
                 serializer = ServiceSerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # ❌ Return all services without pagination
+        # ❌ No pagination → return all
         serializer = ServiceSerializer(services, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
