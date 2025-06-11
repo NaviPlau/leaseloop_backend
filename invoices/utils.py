@@ -19,7 +19,7 @@ def generate_invoice_pdf(invoice):
             raise Exception("PDF Generation failed")
 
     invoice.pdf_file = f"invoices/{os.path.basename(pdf_path)}"
-    invoice.save(update_fields=["pdf_file"])
+    # invoice.save(update_fields=["pdf_file"])
 
 def generate_invoice_number():
     year = datetime.datetime.now().year

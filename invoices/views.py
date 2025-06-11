@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from .utils import generate_invoice_number
+from utils.custom_permission import IsOwnerOrAdmin
 
 
 @api_view(['POST'])
@@ -55,7 +56,7 @@ def generate_invoice_from_booking(request, booking_id):
 
 
 class OwnerInvoiceListView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin]
 
     def get(self, request):
         """

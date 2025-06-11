@@ -32,12 +32,19 @@ class DashboardStatsAPIView(APIView):
             units_total = units.count()
 
             # Next arrival
-            upcoming_arrivals = bookings.filter(check_in__gte=today).order_by("check_in")
+            upcoming_arrivals = bookings.filter(
+                check_in__gte=today,
+                status='confirmed').order_by("check_in")
             next_arrival = upcoming_arrivals.first().check_in if upcoming_arrivals.exists() else None
+
+            
+            next_arrival_property = bookings.filter(check_in=next_arrival).first().unit.property if next_arrival else None
 
             # Next departure
             upcoming_departures = bookings.filter(check_out__gte=today).order_by("check_out")
             next_departure = upcoming_departures.first().check_out if upcoming_departures.exists() else None
+
+            next_departure_property = bookings.filter(check_out=next_departure).first().unit.property if next_departure else None
 
             # Guests currently present
             active_guests = bookings.filter(check_in__lte=today, check_out__gte=today)
@@ -74,9 +81,11 @@ class DashboardStatsAPIView(APIView):
             response_data = {
                 "next_arrival": next_arrival,
                 "next_departure": next_departure,
+                "next_arrival_property": next_arrival_property.name,
                 "guests_present": guests_total,
                 "occupancy_today": occupancy_today,
-                "occupancy_month": occupancy_month
+                "occupancy_month": occupancy_month,
+                "next_departure_property": next_departure_property.name
             }
 
             return Response(response_data, status=status.HTTP_200_OK)

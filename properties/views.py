@@ -9,15 +9,15 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import PropertyImageSerializer
 from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
+from utils.custom_permission import IsOwnerOrAdmin
 
 
 class PropertyAPIView(APIView):
     """
     API-Endpoint to manage properties.
     """
-
     #permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerOrAdmin]
     def get(self, request, pk=None):
         """
         Gets a property or a list of all properties of the user.
@@ -114,7 +114,7 @@ class PropertyAPIView(APIView):
 
 
 class PropertyImageUploadView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):

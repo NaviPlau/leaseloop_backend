@@ -8,6 +8,7 @@ from datetime import timedelta, date
 import random
 
 from properties.models import Property, PropertyImage
+from lease_auth.models import Profile
 from units.models import Unit, UnitImage
 from services.models import Service
 from promocodes.models import Promocodes
@@ -26,6 +27,26 @@ from bookings.serializers import BookingWriteSerializer
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROPERTY_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'property_images')
 UNIT_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'unit_images')
+
+def generate_valid_booking_dates(unit, max_retries=100):
+    for _ in range(max_retries):
+        # Randomly choose past or future
+        if random.choice([True, False]):
+            check_out = date.today() - timedelta(days=random.randint(1, 365))
+            check_in = check_out - timedelta(days=random.randint(2, 7))
+        else:
+            check_in = date.today() + timedelta(days=random.randint(0, 365))
+            check_out = check_in + timedelta(days=random.randint(2, 7))
+
+        # Check for conflict
+        if not Booking.objects.filter(
+            unit=unit,
+            check_in__lt=check_out,
+            check_out__gt=check_in
+        ).exists():
+            return check_in, check_out
+
+    return None, None  # fallback if unable to find free slot
 
 
 def get_random_image(path: str) -> File | None:
@@ -160,7 +181,7 @@ def reset_guest_demo_data(request):
         "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456",
         "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456",]
     clients = []
-    for i in range(400):
+    for i in range(200):
         first = random.choice(client_first_names)
         last = random.choice(client_last_names)
         domain = random.choice(email_domains)
@@ -203,16 +224,14 @@ def reset_guest_demo_data(request):
     all_services = list(Service.objects.filter(property__owner=guest_user))
     all_units = [unit for units in units_by_property.values() for unit in units]
 
-    for _ in range(500):
+    for _ in range(200):
         client = random.choice(clients)
         unit = random.choice(all_units)
 
-        if random.choice([True, False]):
-            check_out = date.today() - timedelta(days=random.randint(1, 365))
-            check_in = check_out - timedelta(days=random.randint(2, 7))
-        else:
-            check_in = date.today() + timedelta(days=random.randint(0, 365))
-            check_out = check_in + timedelta(days=random.randint(2, 7))
+        check_in, check_out = generate_valid_booking_dates(unit)
+        if not check_in or not check_out:
+                print(f"Could not find free dates for unit {unit.id}")
+                continue
 
         guests = random.randint(1, unit.max_capacity)
         services = random.sample(all_services, k=random.randint(0, 2))
@@ -234,6 +253,12 @@ def reset_guest_demo_data(request):
             serializer.save()
         else:
             print("Booking error:", serializer.errors)
+
+    guest_profile = Profile.objects.get(user=guest_user)
+    guest_profile.first_name = "Guest"
+    guest_profile.last_name = "User"
+    guest_profile.data_filled = True
+    guest_profile.save()
 
     return Response({
         "message": "Demo-Data successfully initialized.",
