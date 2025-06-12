@@ -41,7 +41,7 @@ class DashboardStatsAPIView(APIView):
             next_arrival_property = bookings.filter(check_in=next_arrival).first().unit.property if next_arrival else None
 
             # Next departure
-            upcoming_departures = bookings.filter(check_out__gte=today).order_by("check_out")
+            upcoming_departures = bookings.filter(check_out__gte=today, status = 'confirmed').order_by("check_out")
             next_departure = upcoming_departures.first().check_out if upcoming_departures.exists() else None
 
             next_departure_property = bookings.filter(check_out=next_departure).first().unit.property if next_departure else None
