@@ -14,9 +14,9 @@ def create_or_update_invoice(sender, instance, **kwargs):
         booking=instance,
         defaults={
             'invoice_number': generate_invoice_number(),
+            
         }
     )
-
     if not created and not invoice.invoice_number:
         invoice.invoice_number = generate_invoice_number()
         invoice.save(update_fields=['invoice_number'])

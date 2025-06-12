@@ -9,6 +9,7 @@
         font-size: 14px;
         color: #333;
         margin: 30px;
+        width: 595px;
       }
 
       .header {
@@ -41,6 +42,7 @@
         border: 1px solid #ccc;
         padding: 8px;
         text-align: left;
+        width: 50%;
       }
 
       .table th {
@@ -68,16 +70,16 @@
     <div class="client-info">
       <h4>Client Information</h4>
       <p>
-        {{ invoice.booking.client.first_name }} {{
-        invoice.booking.client.last_name }}
+        {{ invoice.booking.client.first_name }} 
+        {{ invoice.booking.client.last_name }}
       </p>
       <p>
-        {{ invoice.booking.client.address.street }} {{
-        invoice.booking.client.address.house_number }}
+        {{ invoice.booking.client.address.street }} 
+        {{ invoice.booking.client.address.house_number }}
       </p>
       <p>
-        {{ invoice.booking.client.address.postal_code }} {{
-        invoice.booking.client.address.city }}
+        {{ invoice.booking.client.address.postal_code }}
+        {{ invoice.booking.client.address.city }}
       </p>
       <p>{{ invoice.booking.client.address.country }}</p>
       <p>Email: {{ invoice.booking.client.email }}</p>
@@ -88,11 +90,12 @@
       <p><strong>Property:</strong> {{ invoice.booking.unit.property.name }}</p>
       <p><strong>Unit:</strong> {{ invoice.booking.unit.name }}</p>
       <p>
-        <strong>Stay:</strong> {{ invoice.booking.check_in|date:"d.m.Y" }} – {{
-        invoice.booking.check_out|date:"d.m.Y" }} ({{ invoice.rental_days }}
-        nights)
+        <strong>Stay:</strong> {{ invoice.booking.check_in|date:"d.m.Y" }} – 
+        {{ invoice.booking.check_out|date:"d.m.Y" }} ({{ invoice.booking.total_days }} nights)
       </p>
       <p><strong>Guests:</strong> {{ invoice.booking.guests_count }}</p>
+      <p><strong>Property Phone:</strong> {{ invoice.booking.property.address.phone }}</p>
+      <p><strong>Property Email:</strong> {{ invoice.booking.property.address.email }}</p>
     </div>
 
     <table class="table">
@@ -104,40 +107,33 @@
       </thead>
       <tbody>
         <tr>
-          <td>Base Rental ({{ invoice.rental_days }} nights)</td>
-          <td>{{ invoice.rental_price|default:"0.00" }}</td>
+          <td>Base renting price</td>
+          <td>{{ invoice.booking.base_renting_price |floatformat:2 }}</td>
         </tr>
         <tr>
           <td>Services</td>
-          <td>{{ invoice.services_price|default:"0.00" }}</td>
+          <td>{{ invoice.booking.total_services_price |floatformat:2 }}</td>
         </tr>
-        {% if invoice.discount_amount and invoice.discount_amount > 0 %}
+        {% if invoice.booking.discount_amount and invoice.booking.discount_amount > 0 %}
         <tr>
           <td>
-            Discount {% if invoice.promo_code %}({{ invoice.promo_code.code
-            }}){% endif %}
+            Discount {% if invoice.booking.promo_code %}({{ invoice.booking.discount_amount}}){% endif %}
           </td>
-          <td>-{{ invoice.discount_amount|floatformat:2 }}</td>
+          <td>-{{ invoice.booking.discount_amount|floatformat:2 }}</td>
         </tr>
         {% endif %}
-        <tr class="total">
-          <td>Total Price</td>
-          <td>{{ invoice.total_price|floatformat:2 }}</td>
-        </tr>
-        {% if invoice.deposit_paid %}
+        {% if invoice.booking.deposit_paid %}
         <tr>
           <td>Deposit Paid</td>
-          <td>-{{ invoice.deposit_amount|floatformat:2 }}</td>
-        </tr>
-        <tr class="total">
-          <td>Remaining Balance</td>
-          <td>
-            {{
-            invoice.total_price|floatformat:2|add:"-{}".format(invoice.deposit_amount)|floatformat:2
-            }}
-          </td>
+          <td>-{{ invoice.booking.deposit_amount|floatformat:2 }}</td>
         </tr>
         {% endif %}
+        <tr class="total">
+        <td>Total Price</td>
+          <td>
+            {{ invoice.booking.total_price|floatformat:2 }}
+          </td>
+        </tr>
       </tbody>
     </table>
 

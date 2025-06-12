@@ -95,8 +95,19 @@ def reset_guest_demo_data(request):
     unit_names = ["Deluxe", "Cozy", "Modern", "Rustic", "Elegant", "Sunny", "Quiet", "Spacious"]
     
     street_names = ["Maple Street", "Oak Avenue", "Pine Road", "Cedar Lane", "Birch Way", "Willow Lane", "Elm Street", "Spruce Drive", "Hickory Boulevard", "Chestnut Street"]
-    cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Bremen", "Dresden", "Hannover", "Nuremberg", "Mannheim", "Karlsruhe", "Augsburg", "Wiesbaden", "Mönchengladbach", "Gelsenkirchen"]
-    countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium", "France", "Italy", "Spain", "Portugal", "Czech Republic"]
+    country_to_cities = {
+    "Germany": ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Bremen", "Dresden", "Hannover", "Nuremberg", "Mannheim", "Karlsruhe", "Augsburg", "Wiesbaden", "Mönchengladbach", "Gelsenkirchen"],
+    "Austria": ["Vienna", "Graz", "Linz", "Salzburg", "Innsbruck", "Klagenfurt", "Villach"],
+    "Switzerland": ["Zurich", "Geneva", "Bern", "Basel", "Lausanne", "Lucerne"],
+    "Netherlands": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven", "Groningen"],
+    "Belgium": ["Brussels", "Antwerp", "Ghent", "Bruges", "Leuven"],
+    "France": ["Paris", "Lyon", "Marseille", "Nice", "Bordeaux", "Strasbourg", "Toulouse"],
+    "Italy": ["Rome", "Milan", "Florence", "Venice", "Naples", "Turin", "Bologna"],
+    "Spain": ["Madrid", "Barcelona", "Valencia", "Seville", "Malaga", "Bilbao"],
+    "Portugal": ["Lisbon", "Porto", "Coimbra", "Braga", "Funchal"],
+    "Czech Republic": ["Prague", "Brno", "Ostrava", "Plzeň", "Liberec"],
+    }
+
     phone_numbers = [
         "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 654321",
         "+49 89 123456", "+49 69 654321", "+49 30 987654", "+49 40 123456", "+49 89 654321", "+49 69 987654",
@@ -104,13 +115,16 @@ def reset_guest_demo_data(request):
     properties = []
     units_by_property = {}
 
+    country = random.choice(list(country_to_cities.keys()))
+    city = random.choice(country_to_cities[country])
+
     for prop_name in property_names:
         address = Address.objects.create(
             street=random.choice(street_names),
             house_number=str(random.randint(1, 99)),
             postal_code=f"{random.randint(10000, 99999)}",
-            city=random.choice(cities),
-            country=random.choice(countries),
+            country = country,
+            city = city,
             phone=random.choice(phone_numbers)
         )
 
@@ -172,20 +186,12 @@ def reset_guest_demo_data(request):
     "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis"
 ]
     email_domains = ["example.com", "demo.org", "mail.dev", "sample.net"]
-    client_street_names = ["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way"]
-    client_postal_codes = ["10115", "10117", "10119", "10178", "10179", "10180", "10182", "10184", "10186", "10187"]
-    client_cities = ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig"]
-    client_countries = ["Germany", "Austria", "Switzerland", "Netherlands", "Belgium", "France", "Italy", "Spain", "Portugal", "Czech Republic"]
-    client_phone_numbers = [
-        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456",
-        "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456",
-        "+49 30 987654", "+49 40 123456", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 123456",]
     clients = []
     for i in range(50):
         first = random.choice(client_first_names)
         last = random.choice(client_last_names)
         domain = random.choice(email_domains)
-
+        client_postal_codes = ["10115", "10117", "10119", "10178", "10179", "10180", "10182", "10184", "10186", "10187"]
         email = f"{first.lower()}.{last.lower()}{random.randint(1, 99)}@{domain}"
 
         street_base = random.choice(["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way", "Client Boulevard", "Client Drive", "Client Place", "Client Terrace", "Client Square"])
@@ -195,9 +201,9 @@ def reset_guest_demo_data(request):
         addr = Address.objects.create(
             street=street,
             house_number=str(random.randint(1, 99)),
-            postal_code=random.choice(["10115", "10117", "10119", "10178", "10179"]),
-            city=random.choice(["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]),
-            country=random.choice(["Germany", "Austria", "Switzerland", "Netherlands", "Belgium"]),
+            postal_code=random.choice(client_postal_codes),
+            city=city,
+            country=country,
             phone=phone
         )
 
@@ -250,9 +256,18 @@ def reset_guest_demo_data(request):
             'services': [s.id for s in services]
         })
         if serializer.is_valid():
-            serializer.save()
+            booking = serializer.save()
+            booking.refresh_from_db()
+
+            if booking.total_price and booking.total_price > 0 and booking.deposit_paid is True:
+                deposit = round(booking.total_price * random.uniform(0.2, 0.4), 2)
+                booking.deposit_amount = deposit
+                booking.total_price -= deposit  # ❗Careful: only if that's your real business logic
+                booking.save(update_fields=['deposit_amount', 'total_price'])
+            else:
+                print(f"Booking created without deposit: ID={booking.id}, deposit_paid={booking.deposit_paid}, total_price={booking.total_price}")
         else:
-            print("Booking error:", serializer.errors)
+            print("Booking serializer error:", serializer.errors)
 
     guest_profile = Profile.objects.get(user=guest_user)
     guest_profile.first_name = "Guest"
