@@ -30,7 +30,6 @@ UNIT_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'unit_images')
 
 def generate_valid_booking_dates(unit, max_retries=100):
     for _ in range(max_retries):
-        # Randomly choose past or future
         if random.choice([True, False]):
             check_out = date.today() - timedelta(days=random.randint(1, 365))
             check_in = check_out - timedelta(days=random.randint(2, 7))
@@ -38,7 +37,6 @@ def generate_valid_booking_dates(unit, max_retries=100):
             check_in = date.today() + timedelta(days=random.randint(0, 365))
             check_out = check_in + timedelta(days=random.randint(2, 7))
 
-        # Check for conflict
         if not Booking.objects.filter(
             unit=unit,
             check_in__lt=check_out,
@@ -46,7 +44,7 @@ def generate_valid_booking_dates(unit, max_retries=100):
         ).exists():
             return check_in, check_out
 
-    return None, None  # fallback if unable to find free slot
+    return None, None
 
 
 def get_random_image(path: str) -> File | None:
@@ -132,6 +130,7 @@ def reset_guest_demo_data(request):
             owner=guest_user,
             name=prop_name,
             address=address,
+            email = f"{prop_name.lower().replace(' ', '')}@lease-loop.com",
             description=f"{prop_name} - A perfect place for your stay."
         )
         
@@ -262,7 +261,7 @@ def reset_guest_demo_data(request):
             if booking.total_price and booking.total_price > 0 and booking.deposit_paid is True:
                 deposit = round(booking.total_price * random.uniform(0.2, 0.4), 2)
                 booking.deposit_amount = deposit
-                booking.total_price -= deposit  # ❗Careful: only if that's your real business logic
+                booking.total_price -= deposit
                 booking.save(update_fields=['deposit_amount', 'total_price'])
             else:
                 print(f"Booking created without deposit: ID={booking.id}, deposit_paid={booking.deposit_paid}, total_price={booking.total_price}")

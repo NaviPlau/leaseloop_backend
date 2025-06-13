@@ -7,6 +7,7 @@ class Property(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='properties'
     )
     name = models.CharField(max_length=255)
+    email = models.CharField(max_length=255, default='narnia@dream.com')
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='properties')
     description = models.TextField(blank=True)
     deleted = models.BooleanField(default=False)

@@ -18,8 +18,7 @@ class PropertySerializer(serializers.ModelSerializer):
         model = Property
         fields = [
             'id', 'owner', 'name', 'address', 'description',
-            'created_at', 'updated_at', 'images', 'units', 'active'
-        ]
+            'created_at', 'updated_at', 'images', 'units', 'active', 'email'  ]
         read_only_fields = ['owner']
 
 
