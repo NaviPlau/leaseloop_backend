@@ -13,17 +13,30 @@ from django.db.models.functions import TruncYear, TruncMonth
 from django.db.models import Q, Count
 from django.utils.timezone import make_aware
 from django.utils.timezone import is_naive
+
 class RevenueGroupedByView(APIView):
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
+        """
+        Returns a list of revenue grouped by unit or property
+
+        Parameters:
+            group_by (str): The field to group revenue by. Defaults to 'property'.
+            from (str): The start date for the revenue range. Defaults to the earliest date if not provided.
+            to (str): The end date for the revenue range. Defaults to the latest date if not provided.
+            property (str): The ID of the property to filter revenue by. Defaults to 'all' if not provided.
+            unit (str): The ID of the unit to filter revenue by. Defaults to 'all' if not provided.
+
+        Returns:
+            A list of dictionaries containing the name and revenue for each group.
+        """
         group_by = request.GET.get('group_by', 'property')  
         start_date = parse_date(request.GET.get('from'))
         end_date = parse_date(request.GET.get('to'))
         property_id = request.GET.get('property')
         unit_id = request.GET.get('unit')
 
-        qs = Booking.objects.filter(created_at__range=(start_date, end_date), status='confirmed')
+        qs = Booking.objects.filter(check_in__lte=end_date, check_out__gte=start_date, status='confirmed')
 
         if property_id and property_id != 'all':
             qs = qs.filter(unit__property_id=property_id)
@@ -45,19 +58,44 @@ class RevenueGroupedByView(APIView):
 
         return Response(response_data)
 
-
-
-
 class BookingStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """
+        Returns a dictionary of booking stats grouped by property and unit.
+
+        Parameters:
+            from (str): The start date for the booking range. Defaults to the earliest date if not provided.
+            to (str): The end date for the booking range. Defaults to the latest date if not provided.
+            property (str): The ID of the property to filter bookings by. Defaults to 'all' if not provided.
+            unit (str): The ID of the unit to filter bookings by. Defaults to 'all' if not provided.
+
+        Returns:
+            A dictionary with the following structure:
+
+            {
+                'properties': {
+                    '<property_id>': {
+                        'name': '<property_name>',
+                        'units': {
+                            '<unit_id>': {
+                                'pending': <count>,
+                                'confirmed': <count>,
+                                'total': <count>,
+                                'name': '<unit_name>'
+                            }
+                        }
+                    }
+                }
+            }
+        """
         start_date = parse_date(request.GET.get('from'))
         end_date = parse_date(request.GET.get('to'))
         property_id = request.GET.get('property')
         unit_id = request.GET.get('unit')
 
-        bookings = Booking.objects.filter(created_at__range=(start_date, end_date))
+        bookings = Booking.objects.filter(check_in__lte=end_date, check_out__gte=start_date, status='confirmed')
 
         if property_id and property_id != 'all':
             bookings = bookings.filter(unit__property_id=property_id)
@@ -89,27 +127,34 @@ class BookingStatsView(APIView):
                 for pid, units in stats.items()
             }
         }
-
-
         return Response(result)
-
-
-
 
 class ServiceSalesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """
+        Returns a list of 5 most sold services of the given property/unit
+
+        Parameters:
+            from (str): The start date for the booking range. Defaults to the earliest date if not provided.
+            to (str): The end date for the booking range. Defaults to the latest date if not provided.
+            property (str): The ID of the property to filter bookings by. Defaults to 'all' if not provided.
+            unit (str): The ID of the unit to filter bookings by. Defaults to 'all' if not provided.
+
+        Returns:
+            A list of dictionaries containing the name and sales of each service.
+        """
+
         start_date = parse_date(request.GET.get('from'))
         end_date = parse_date(request.GET.get('to'))
         property_id = request.GET.get('property')
         unit_id = request.GET.get('unit')
 
-        bookings_filter = {'bookings__created_at__range': (start_date, end_date)}
-        if property_id and property_id != 'all':
-            bookings_filter['bookings__property_id'] = property_id
-        if unit_id and unit_id != 'all':
-            bookings_filter['bookings__unit_id'] = unit_id
+        bookings_filter = {
+            'bookings__check_in__lte': end_date,
+            'bookings__check_out__gte': start_date
+        }
 
         services = Service.objects.filter(**bookings_filter) \
             .annotate(sales_count=Count('bookings')) \
@@ -122,11 +167,35 @@ class ServiceSalesView(APIView):
 
         return Response(data)
 
-
 class CancelledBookingsStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """
+        Returns a JSON object containing the total and cancelled bookings count for each period, and cancellation rate.
+
+        Parameters:
+            from (str): The start date for the booking range. Defaults to the earliest date if not provided.
+            to (str): The end date for the booking range. Defaults to the latest date if not provided.
+            group_by (str): The period to group the bookings by. Defaults to 'year'. Options are 'year' and 'month'.
+            property (str): The ID of the property to filter bookings by. Defaults to 'all' if not provided.
+            unit (str): The ID of the unit to filter bookings by. Defaults to 'all' if not provided.
+
+        Returns:
+            A JSON object with the following structure:
+
+            {
+                'categories': [str, ...],
+                'series': [
+                    {
+                        'name': str,
+                        'type': str,
+                        'data': [int, ...]
+                    },
+                    ...
+                ]
+            }
+        """
         start_date = parse_date(request.GET.get('from'))
         end_date = parse_date(request.GET.get('to'))
         group_by = request.GET.get('group_by', 'year')
