@@ -8,7 +8,7 @@ from datetime import timedelta, date
 import random
 
 from properties.models import Property, PropertyImage
-from lease_auth.models import Profile
+from lease_auth.models import Profile, UserLogo
 from units.models import Unit, UnitImage
 from services.models import Service
 from promocodes.models import Promocodes
@@ -94,6 +94,8 @@ def reset_guest_demo_data(request):
     Service.objects.filter(property__owner=guest_user).delete()
     Property.objects.filter(owner=guest_user).delete()
     Promocodes.objects.filter(owner_id=guest_user).delete()
+    Profile.objects.filter(user=guest_user).delete()
+    UserLogo.objects.filter(user=guest_user).delete()
 
     property_names = [
         "Seaside Escape", "Mountain View Retreat", "City Central Flat",
@@ -125,6 +127,26 @@ def reset_guest_demo_data(request):
         "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 654321",]
     properties = []
     units_by_property = {}
+
+    guest_logo, _ = UserLogo.objects.get_or_create(user=guest_user)
+    random_logo_image = get_random_image(UNIT_IMAGE_DIR)
+    if random_logo_image:
+        guest_logo.logo.save(random_logo_image.name, random_logo_image, save=True)
+
+    guest_address = Address.objects.create(
+        street="Demo Street",
+        house_number="1",
+        postal_code="12345",
+        city="Demo City",
+        country="DemoLand",
+        phone="+49 30 000000"
+    )
+
+    guest_profile, _ = Profile.objects.get_or_create(user=guest_user)
+    guest_profile.data_filled = True
+    guest_profile.address = guest_address
+    guest_profile.logo = guest_logo
+    guest_profile.save()
 
     for prop_name in property_names:
         country = random.choice(list(country_to_cities.keys()))
@@ -158,8 +180,6 @@ def reset_guest_demo_data(request):
         units_by_property[property.id] = []
 
         for _ in range(random.randint(1, 3)):
-            country = random.choice(list(country_to_cities.keys()))
-            city = random.choice(country_to_cities[country])
             unit = Unit.objects.create(
                 property=property,
                 name=f"{random.choice(unit_names)} {random.choice(unit_types).capitalize()}",
@@ -181,14 +201,21 @@ def reset_guest_demo_data(request):
                     alt_text=f"Image for {unit.name}"
                 )
             units_by_property[property.id].append(unit)
-
+        used_services = set()
         for _ in range(random.randint(1, 3)):
-            Service.objects.create(
-                name=random.choice(["Breakfast", "Airport Shuttle", "Spa Access", "Cleaning", "Gym Access", "Parking", "Laundry", "Wi-Fi"]),
-                type=random.choice(['one_time', 'per_day']),
-                price = round(random.uniform(15, 50), 2),
-                property=property
-            )
+            for _ in range(10): 
+                name = random.choice(["Breakfast", "Airport Shuttle", "Spa Access", "Cleaning", "Gym Access", "Parking", "Laundry", "Wi-Fi"])
+                s_type = random.choice(['one_time', 'per_day'])
+                key = (name, s_type)
+                if key not in used_services:
+                    used_services.add(key)
+                    Service.objects.create(
+                        name=name,
+                        type=s_type,
+                        price=round(random.uniform(15, 50), 2),
+                        property=property
+                    )
+                    break
     client_first_names = [
     "John", "Jane", "Alice", "Bob", "Charlie", "Emily", "Liam", "Emma", "Noah", "Olivia",
     "Ava", "Elijah", "Mia", "Sophia", "Lucas", "Amelia", "Mason", "Isabella", "Ethan", "Charlotte"
@@ -201,6 +228,8 @@ def reset_guest_demo_data(request):
     email_domains = ["example.com", "demo.org", "mail.dev", "sample.net"]
     clients = []
     for i in range(50):
+        country = random.choice(list(country_to_cities.keys()))
+        city = random.choice(country_to_cities[country])
         first = random.choice(client_first_names)
         last = random.choice(client_last_names)
         domain = random.choice(email_domains)
@@ -291,9 +320,9 @@ def reset_guest_demo_data(request):
             booking.save(update_fields=update_fields)
 
 
-    guest_profile, _ = Profile.objects.get_or_create(user=guest_user)
-    guest_profile.data_filled = True
-    guest_profile.save()
+
+
+    
 
     return Response({
         "message": "Demo-Data successfully initialized.",

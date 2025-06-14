@@ -50,7 +50,8 @@ def generate_invoice_from_booking(request, booking_id):
     return Response({
         'message': 'Invoice generated successfully',
         'invoice_id': invoice.id,
-        'pdf_file': invoice.pdf_file.url if invoice.pdf_file else None
+        'pdf_file': invoice.pdf_file.url if invoice.pdf_file else None,
+        'logo_path': invoice.logo.logo.url if hasattr(invoice, 'logo') and invoice.logo and invoice.logo.logo else None
     }, status=status.HTTP_201_CREATED)
 
 

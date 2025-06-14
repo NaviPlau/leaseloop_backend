@@ -11,11 +11,12 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from lease_auth.models import User
 from lease_auth.models import PasswordResetToken , LoginToken, UserLogo, Profile
+from utils.custom_permission import AllowAnyExceptGuest
 
 import uuid
 
 class RegistrationView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAnyExceptGuest]
 
     def post(self, request, *args, **kwargs):
         """
@@ -47,7 +48,7 @@ class RegistrationView(APIView):
     
 
 class ActivateAccountView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAnyExceptGuest]
     def get(self, request, uidb64, token, *args, **kwargs):
         """
         Activate a user's account using the activation link.
@@ -106,7 +107,7 @@ class LoginView(APIView):
 
 
 class ForgotPasswordView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAnyExceptGuest]
 
     def post(self, request, *args, **kwargs):
         """
@@ -138,7 +139,7 @@ class ForgotPasswordView(APIView):
         
 
 class PasswordResetView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAnyExceptGuest]
 
     def post(self, request, *args, **kwargs):
         """
@@ -237,7 +238,7 @@ class LogoView(APIView):
     
 
 class ChangePasswordView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAnyExceptGuest, IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
         user = request.user
@@ -249,7 +250,7 @@ class ChangePasswordView(APIView):
     
 
 class ChangeEmailView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, AllowAnyExceptGuest]
 
     def patch(self, request, *args, **kwargs):
         user = request.user
