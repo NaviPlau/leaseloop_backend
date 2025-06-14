@@ -1,6 +1,7 @@
 from django.db import models
 from bookings.models import Booking
 from promocodes.models import Promocodes
+import os
 
 class Invoice(models.Model):
     PAYMENT_STATUS_CHOICES = [
@@ -18,3 +19,8 @@ class Invoice(models.Model):
 
     def __str__(self):
         return f"Invoice #{self.id} for Booking #{self.booking}"
+    
+    def delete(self, *args, **kwargs):
+        if self.pdf_file and os.path.isfile(self.pdf_file.path):
+            os.remove(self.pdf_file.path)
+        super().delete(*args, **kwargs)

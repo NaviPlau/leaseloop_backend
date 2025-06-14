@@ -20,6 +20,9 @@ import os
 from django.core.files import File
 User = get_user_model()
 
+from django.utils.timezone import make_aware
+import datetime
+
 from django.core.files.base import ContentFile
 
 from bookings.serializers import BookingWriteSerializer
@@ -72,13 +75,23 @@ def reset_guest_demo_data(request):
         guest_user = User.objects.create_user(
             username="guest@exampless.com",
             email="guest@exampless.com",
-            password="guest1234BB!!"
+            password="guest1234BB!!",
+            first_name="Guest",
+            last_name="User",
         )
 
+    Invoice.objects.filter(booking__client__user=guest_user).delete()
     Booking.objects.filter(client__user=guest_user).delete()
-    Invoice.objects.filter(booking__unit__property__owner=guest_user).delete()
+    Address.objects.filter(
+            id__in=Client.objects.filter(user=guest_user).values_list('address_id', flat=True)
+        ).delete()
+    Address.objects.filter(
+            id__in=Property.objects.filter(owner=guest_user).values_list('address_id', flat=True)
+        ).delete()
+
     Client.objects.filter(user=guest_user).delete()
     Unit.objects.filter(property__owner=guest_user).delete()
+    Service.objects.filter(property__owner=guest_user).delete()
     Property.objects.filter(owner=guest_user).delete()
     Promocodes.objects.filter(owner_id=guest_user).delete()
 
@@ -113,10 +126,9 @@ def reset_guest_demo_data(request):
     properties = []
     units_by_property = {}
 
-    country = random.choice(list(country_to_cities.keys()))
-    city = random.choice(country_to_cities[country])
-
     for prop_name in property_names:
+        country = random.choice(list(country_to_cities.keys()))
+        city = random.choice(country_to_cities[country])
         address = Address.objects.create(
             street=random.choice(street_names),
             house_number=str(random.randint(1, 99)),
@@ -146,6 +158,8 @@ def reset_guest_demo_data(request):
         units_by_property[property.id] = []
 
         for _ in range(random.randint(1, 3)):
+            country = random.choice(list(country_to_cities.keys()))
+            city = random.choice(country_to_cities[country])
             unit = Unit.objects.create(
                 property=property,
                 name=f"{random.choice(unit_names)} {random.choice(unit_types).capitalize()}",
@@ -258,19 +272,26 @@ def reset_guest_demo_data(request):
             booking = serializer.save()
             booking.refresh_from_db()
 
+            update_fields = []
+
             if booking.total_price and booking.total_price > 0 and booking.deposit_paid is True:
                 deposit = round(booking.total_price * random.uniform(0.2, 0.4), 2)
                 booking.deposit_amount = deposit
                 booking.total_price -= deposit
-                booking.save(update_fields=['deposit_amount', 'total_price'])
-            else:
-                print(f"Booking created without deposit: ID={booking.id}, deposit_paid={booking.deposit_paid}, total_price={booking.total_price}")
-        else:
-            print("Booking serializer error:", serializer.errors)
+                update_fields += ['deposit_amount', 'total_price']
 
-    guest_profile = Profile.objects.get(user=guest_user)
-    guest_profile.first_name = "Guest"
-    guest_profile.last_name = "User"
+            # set random created_at date (3–20 days before check-in)
+            random_days_before = random.randint(3, 20)
+            random_created_at = booking.check_in - timedelta(days=random_days_before)
+            if isinstance(random_created_at, datetime.date) and not isinstance(random_created_at, datetime.datetime):
+                random_created_at = make_aware(datetime.datetime.combine(random_created_at, datetime.datetime.min.time()))
+            booking.created_at = random_created_at
+            update_fields.append('created_at')
+
+            booking.save(update_fields=update_fields)
+
+
+    guest_profile, _ = Profile.objects.get_or_create(user=guest_user)
     guest_profile.data_filled = True
     guest_profile.save()
 

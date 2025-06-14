@@ -64,7 +64,7 @@
     <div class="header">
       <h2>Invoice</h2>
       <p>Invoice No: {{ invoice.id }}</p>
-      <p>Date: {{ invoice.created_at|date:"d.m.Y" }}</p>
+      <p>Date: {{ invoice.booking.created_at | date:"d.m.Y" }}</p>
     </div>
 
     <div class="client-info">
@@ -95,7 +95,7 @@
       </p>
       <p><strong>Guests:</strong> {{ invoice.booking.guests_count }}</p>
       <p><strong>Property Phone:</strong> {{ invoice.booking.property.address.phone }}</p>
-      <p><strong>Property Email:</strong> {{ invoice.booking.property.address.email }}</p>
+      <p><strong>Property Email:</strong> {{ invoice.booking.property.email }}</p>
     </div>
 
     <table class="table">
@@ -117,7 +117,7 @@
         {% if invoice.booking.discount_amount and invoice.booking.discount_amount > 0 %}
         <tr>
           <td>
-            Discount {% if invoice.booking.promo_code %}({{ invoice.booking.discount_amount}}){% endif %}
+            Discount
           </td>
           <td>-{{ invoice.booking.discount_amount|floatformat:2 }}</td>
         </tr>
