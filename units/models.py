@@ -1,6 +1,12 @@
 from django.db import models
 from properties.models import Property
 
+class Amenity(models.Model):
+    label = models.CharField(max_length=255)
+    category = models.CharField(max_length=255, blank=True, null=True)
+    def __str__(self):
+        return self.label
+    
 class Unit(models.Model):
     STATUS_CHOICES = [
         ('available', 'Available'),
@@ -30,7 +36,7 @@ class Unit(models.Model):
     price_per_extra_person = models.FloatField(default=0.0)
     active = models.BooleanField(default=True)
     deleted = models.BooleanField(default=False)
-
+    amenities = models.ManyToManyField(Amenity, blank=True, related_name='units')
 
     def __str__(self):
         return f"{self.name} ({self.property.name})"
