@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .models import Unit, UnitImage
+from .models import Unit, UnitImage, Amenity
 from properties.models import Property
-from .serializers import UnitSerializer, UnitImageSerializer
+from .serializers import UnitSerializer, UnitImageSerializer, AmenitySerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser

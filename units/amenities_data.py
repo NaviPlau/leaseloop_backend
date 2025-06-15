@@ -1,0 +1,17 @@
+amenity_list = [
+{"label": "Double Bed", "category": "Sleeping & Comfort"},
+{"label": "Sofa Bed", "category": "Sleeping & Comfort"},
+{"label": "Shower", "category": "Bathroom"},
+{"label": "Wi-Fi", "category": "Tech & Entertainment"},
+{"label": "TV", "category": "Tech & Entertainment"},
+{"label": "Cable TV", "category": "Tech & Entertainment"},
+{"label": "Air Conditioning", "category": "Tech & Entertainment"},
+{"label": "Heating", "category": "Tech & Entertainment"},
+{"label": "Kitchen", "category": "Kitchen & Dining"},
+{"label": "Microwave", "category": "Kitchen & Dining"},
+{"label": "Refrigerator", "category": "Kitchen & Dining"},
+{"label": "Oven", "category": "Kitchen & Dining"},
+{"label": "Dishwasher", "category": "Kitchen & Dining"},
+{"label": "Washing Machine", "category": "Kitchen & Dining"},
+{"label": "Dryer", "category": "Kitchen & Dining"},
+{"label": "Toaster", "category": "Kitchen & Dining"},]
