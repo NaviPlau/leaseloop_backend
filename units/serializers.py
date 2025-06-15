@@ -1,8 +1,13 @@
 from rest_framework import serializers
-from .models import Unit, UnitImage
+from .models import Unit, UnitImage, Amenity
 from properties.models import Property
 from properties.short_serializers import PropertyShortSerializer
 
+class AmenitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Amenity
+        fields = '__all__'
+        
 class UnitImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = UnitImage
@@ -12,17 +17,21 @@ class UnitSerializer(serializers.ModelSerializer):
     property = PropertyShortSerializer(read_only=True)
     property_id = serializers.PrimaryKeyRelatedField(queryset=Property.objects.all(), write_only=True)
     images = UnitImageSerializer(many=True, read_only=True)
-
+    amenities = serializers.PrimaryKeyRelatedField(queryset=Amenity.objects.all(), many=True, required=False)
+    
     class Meta:
         model = Unit
         fields = '__all__'
 
     def create(self, validated_data):
         property_obj = validated_data.pop('property_id')
+        amenities_data = validated_data.pop('amenities', [])
         unit = Unit.objects.create(property=property_obj, **validated_data)
+        unit.amenities.set(amenities_data)
         return unit
     
     def update(self, instance, validated_data):
+        amenities_data = validated_data.pop('amenities', None)
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
         instance.max_capacity = validated_data.get('max_capacity', instance.max_capacity)
@@ -33,6 +42,8 @@ class UnitSerializer(serializers.ModelSerializer):
         instance.type = validated_data.get('type', instance.type)
         instance.active = validated_data.get('active', instance.active)
         instance.save()
+        if amenities_data is not None:                    
+            instance.amenities.set(amenities_data)        
         return instance
     
     def get_image_url(self, obj):
