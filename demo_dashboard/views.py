@@ -189,8 +189,11 @@ def reset_guest_demo_data(request):
                 price_per_night = round(random.uniform(60, 180), 2),
                 price_per_extra_person = round(random.uniform(10, 25), 2),
                 status=random.choice(['available', 'booked', 'maintenance', 'cleaning']),
-                type=random.choice(unit_types)
+                type=random.choice(unit_types),
             )
+
+            random_ids = random.sample(range(1, 21), random.randint(1, 10))
+            unit.amenities.set(random_ids)
             
             
             unit_image_file = get_random_image(UNIT_IMAGE_DIR)
