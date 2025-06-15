@@ -19,25 +19,20 @@ class PromocodesAPIView(APIView):
     def get(self, request, pk=None):
         if pk:
             promocode_obj = get_object_or_404(Promocodes, pk=pk)
+            self.check_object_permissions(request, promocode_obj)
             serializer = PromocodesSerializer(promocode_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # 🟢 Base queryset
         promocodes = Promocodes.objects.filter(deleted=False)
-
-        # 🔍 Search logic
+        if not request.user.is_staff:
+            promocodes = promocodes.filter(owner_id=request.user)
         search = request.query_params.get('search')
         if search:
             promocodes = promocodes.filter(
                 Q(code__icontains=search) |
                 Q(description__icontains=search)
-                # | Q(description__icontains=search)  # Uncomment if you have this field
             )
-
-        # 🧾 Order by code
         promocodes = promocodes.order_by('code')
-
-        # ✅ Apply pagination only if 'page' is in query params
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(promocodes, request)
@@ -45,7 +40,6 @@ class PromocodesAPIView(APIView):
                 serializer = PromocodesSerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # ❌ No pagination → return all results
         serializer = PromocodesSerializer(promocodes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

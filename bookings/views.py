@@ -8,11 +8,12 @@ from .signals import update_active_bookings
 from utils.custom_pagination import CustomPageNumberPagination
 from .models import Booking
 from django.db.models import Q
+from utils.custom_permission import IsOwnerOrAdmin
 
 # Create your views here.
 
 class BookingAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerOrAdmin]
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PUT', 'PATCH']:
@@ -28,11 +29,8 @@ class BookingAPIView(APIView):
             booking_obj = get_object_or_404(Booking, pk=pk)
             serializer = BookingReadSerializer(booking_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-        # 🟢 Base query
         bookings = Booking.objects.filter(deleted=False)
 
-        # 🔍 Apply search if ?search= is present
         search = request.query_params.get('search')
         if search:
             bookings = bookings.filter(
@@ -45,10 +43,11 @@ class BookingAPIView(APIView):
                 Q(property__address__street__icontains=search) 
             )
 
-        # 🧾 Order by check-in
+        if not request.user.is_staff:
+            bookings = bookings.filter(unit__property__owner=request.user)
+
         bookings = bookings.order_by('check_in')
 
-        # 📄 Paginate if ?page= is present
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(bookings, request)
@@ -56,7 +55,6 @@ class BookingAPIView(APIView):
                 serializer = BookingReadSerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # 🧾 Return all if no pagination
         serializer = BookingReadSerializer(bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

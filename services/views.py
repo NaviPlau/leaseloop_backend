@@ -8,10 +8,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
-
+from utils.custom_permission import IsOwnerOrAdmin
 class ServiceAPIView(APIView):
     #permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerOrAdmin]
     def get(self, request, pk=None, property_id=None):
         """
         Gets a service or a list of all services of the property.
@@ -35,7 +35,8 @@ class ServiceAPIView(APIView):
         search = request.query_params.get('search')
         if search:
             services = services.filter(
-                Q(name__icontains=search)
+                Q(name__icontains=search),
+                Q(description__icontains=search)
             )
 
         # 📄 Order by creation date

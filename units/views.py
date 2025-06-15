@@ -11,24 +11,26 @@ from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from django.db.models.functions import Cast
 from django.db.models import CharField
+from utils.custom_permission import IsOwnerOrAdmin
 
 class UnitAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerOrAdmin]
 
     def get(self, request, pk=None, property_id=None):
         if pk:
             unit = get_object_or_404(Unit, pk=pk)
+            self.check_object_permissions(request, unit)
             return Response(UnitSerializer(unit).data, status=status.HTTP_200_OK)
-
         if property_id:
             units = Unit.objects.filter(property_id=property_id, deleted=False)
         else:
             units = Unit.objects.filter(deleted=False)
 
-        # 🔍 Apply search if ?search= is present
+        if not request.user.is_staff:
+            units = units.filter(property__owner=request.user)
+
         search = request.query_params.get('search')
         if search:
-            # Annotate max_capacity as string so we can search it using icontains
             units = units.annotate(
                 max_capacity_str=Cast('max_capacity', CharField())
             ).filter(
@@ -39,7 +41,6 @@ class UnitAPIView(APIView):
                 Q(description__icontains=search)
             )
 
-        # ✅ Only paginate if `?page=` is provided
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             paginated_units = paginator.paginate_queryset(units, request)
@@ -47,7 +48,6 @@ class UnitAPIView(APIView):
                 serialized = UnitSerializer(paginated_units, many=True)
                 return paginator.get_paginated_response(serialized.data)
 
-        # ❌ No pagination → return all
         serialized = UnitSerializer(units, many=True)
         return Response(serialized.data, status=status.HTTP_200_OK)
 
