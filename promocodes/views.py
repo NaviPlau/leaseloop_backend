@@ -7,7 +7,7 @@ from .serializers import PromocodesSerializer
 from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
-# Create your views here.
+from .filter import apply_promocode_filters
 
 class PromocodesAPIView(APIView):
     """
@@ -26,13 +26,7 @@ class PromocodesAPIView(APIView):
         promocodes = Promocodes.objects.filter(deleted=False)
         if not request.user.is_staff:
             promocodes = promocodes.filter(owner_id=request.user)
-        search = request.query_params.get('search')
-        if search:
-            promocodes = promocodes.filter(
-                Q(code__icontains=search) |
-                Q(description__icontains=search)
-            )
-        promocodes = promocodes.order_by('code')
+        promocodes = apply_promocode_filters(promocodes, request)
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(promocodes, request)
