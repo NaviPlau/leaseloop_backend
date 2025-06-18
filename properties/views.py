@@ -10,13 +10,13 @@ from .serializers import PropertyImageSerializer
 from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
+from .filter import apply_property_filters
 
 
 class PropertyAPIView(APIView):
     """
     API-Endpoint to manage properties.
     """
-    #permission_classes = [permissions.IsAuthenticated]
     permission_classes = [IsOwnerOrAdmin]
     def get(self, request, pk=None):
         """
@@ -34,22 +34,8 @@ class PropertyAPIView(APIView):
             serializer = PropertySerializer(property_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # 🟢 Start with base queryset
-        properties = Property.objects.filter(owner=request.user, deleted=False)
+        properties = apply_property_filters(Property.objects.filter(owner=request.user, deleted=False), request)
 
-        # 🔍 Apply search if ?search= is provided
-        search = request.query_params.get('search')
-        if search:
-            properties = properties.filter(
-                Q(name__icontains=search) |
-                Q(description__icontains=search) |
-                Q(address__city__icontains=search)
-            )
-
-        # 🧾 Order by name
-        properties = properties.order_by('name')
-
-        # 📄 Pagination if ?page=
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(properties, request)
@@ -57,7 +43,6 @@ class PropertyAPIView(APIView):
                 serializer = PropertySerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # ❌ No pagination → return all
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

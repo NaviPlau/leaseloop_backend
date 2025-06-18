@@ -9,7 +9,7 @@ from .models import Client
 from bookings .models import Booking
 from django.db.models import Q
 from utils.custom_pagination import CustomPageNumberPagination
-# Create your views here.
+from .filter import apply_client_filters
 
 
 class ClientAPIView(APIView):
@@ -28,32 +28,15 @@ class ClientAPIView(APIView):
             serializer = ClientSerializer(client_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # 🟢 1. Baseline-Query
-        clients = Client.objects.filter(user=request.user, deleted=False)
+        clients = apply_client_filters(Client.objects.filter(user=request.user, deleted=False), request)
+        
 
-        # 🟢 2. Search-Filter anwenden, wenn vorhanden
-        search = request.query_params.get('search')
-        if search:
-            clients = clients.filter(
-                Q(first_name__icontains=search) | 
-                Q(email__icontains=search) |
-                Q(address__city__icontains=search) |
-                Q(address__country__icontains=search) |
-                Q(address__street__icontains=search)
-            )
-
-        # 🟢 3. Sortierung anwenden
-        clients = clients.order_by('first_name')
-
-        # 🟢 4. Paginierung prüfen
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(clients, request)
             if page is not None:
                 serializer = ClientSerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
-
-        # 🟢 5. Falls keine Pagination: alle Ergebnisse
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
