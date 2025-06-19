@@ -11,6 +11,7 @@ from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from .utils import generate_invoice_number
 from utils.custom_permission import IsOwnerOrAdmin
+from .filter import apply_invoice_filters
 
 
 @api_view(['POST'])
@@ -66,24 +67,9 @@ class OwnerInvoiceListView(APIView):
         """
         user = request.user
 
-        # 🟢 Base queryset
         invoices = Invoice.objects.filter(booking__property__owner=user)
 
-        # 🔍 Optional search filter
-        search = request.query_params.get('search')
-        if search:
-            invoices = invoices.filter(
-                Q(booking__client__first_name__icontains=search) |
-                Q(booking__client__last_name__icontains=search) |
-                Q(booking__property__name__icontains=search) |
-                Q(booking__unit__name__icontains=search) |
-                Q(invoice_number__icontains=search) |
-                Q(booking__property__address__city__icontains=search) |
-                Q(booking__property__address__country__icontains=search) |
-                Q(booking__property__address__street__icontains=search)
-            )
-
-        # ✅ Pagination if ?page= is provided
+        invoices = apply_invoice_filters(invoices, request)
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(invoices, request)
@@ -91,6 +77,5 @@ class OwnerInvoiceListView(APIView):
                 serializer = InvoiceSerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # ❌ No pagination → return all
         serializer = InvoiceSerializer(invoices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

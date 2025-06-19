@@ -14,4 +14,11 @@ amenity_list = [
 {"label": "Dishwasher", "category": "Kitchen & Dining"},
 {"label": "Washing Machine", "category": "Kitchen & Dining"},
 {"label": "Dryer", "category": "Kitchen & Dining"},
-{"label": "Toaster", "category": "Kitchen & Dining"},]
+{"label": "Toaster", "category": "Kitchen & Dining"},
+{"label": "Cookware", "category": "Kitchen & Dining"},
+{"label": "Dining Table", "category": "Kitchen & Dining"},
+{"label": "Dining Chairs", "category": "Kitchen & Dining"},
+{"label": "Dining Set", "category": "Kitchen & Dining"},
+{"label": "Dining Bench", "category": "Kitchen & Dining"},
+{"label": "Dining Bench", "category": "Kitchen & Dining"},
+]

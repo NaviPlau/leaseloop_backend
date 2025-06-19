@@ -165,7 +165,8 @@ def reset_guest_demo_data(request):
             name=prop_name,
             address=address,
             email = f"{prop_name.lower().replace(' ', '')}@lease-loop.com",
-            description=f"{prop_name} - A perfect place for your stay."
+            description=f"{prop_name} - A perfect place for your stay.",
+            active = random.choice([True, False])
         )
         
         property_image = get_random_image(PROPERTY_IMAGE_DIR)
@@ -189,8 +190,12 @@ def reset_guest_demo_data(request):
                 price_per_night = round(random.uniform(60, 180), 2),
                 price_per_extra_person = round(random.uniform(10, 25), 2),
                 status=random.choice(['available', 'booked', 'maintenance', 'cleaning']),
-                type=random.choice(unit_types)
+                type=random.choice(unit_types),
+                active = random.choice([True, False])
             )
+
+            random_ids = random.sample(range(1, 21), random.randint(1, 10))
+            unit.amenities.set(random_ids)
             
             
             unit_image_file = get_random_image(UNIT_IMAGE_DIR)
@@ -263,9 +268,10 @@ def reset_guest_demo_data(request):
         promo = Promocodes.objects.create(
             code=code,
             description=f"{code} for special discount",
-            valid_until=date.today() + timedelta(days=90),
+            valid_until=date.today() + timedelta(days=random.randint(40, 365)),
             discount_percent=random.choice([5, 10, 15, 20, 25]),
-            owner_id=guest_user
+            owner_id=guest_user,
+            active = random.choice([True, False])
         )
         promocodes.append(promo)
 
@@ -309,7 +315,6 @@ def reset_guest_demo_data(request):
                 booking.total_price -= deposit
                 update_fields += ['deposit_amount', 'total_price']
 
-            # set random created_at date (3–20 days before check-in)
             random_days_before = random.randint(3, 20)
             random_created_at = booking.check_in - timedelta(days=random_days_before)
             if isinstance(random_created_at, datetime.date) and not isinstance(random_created_at, datetime.datetime):
@@ -318,11 +323,6 @@ def reset_guest_demo_data(request):
             update_fields.append('created_at')
 
             booking.save(update_fields=update_fields)
-
-
-
-
-    
 
     return Response({
         "message": "Demo-Data successfully initialized.",

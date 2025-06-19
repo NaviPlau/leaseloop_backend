@@ -1,16 +1,16 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status
 from .models import Service
 from properties.models import Property
 from .serializers import ServiceSerializer
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import AllowAny
 from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
+from .filter import apply_service_filters
+
 class ServiceAPIView(APIView):
-    #permission_classes = [permissions.IsAuthenticated]
     permission_classes = [IsOwnerOrAdmin]
     def get(self, request, pk=None, property_id=None):
         """
@@ -27,22 +27,9 @@ class ServiceAPIView(APIView):
 
             serializer = ServiceSerializer(service_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-        # 🟢 Base queryset
         services = Service.objects.filter(property__owner=request.user, deleted=False)
+        services = apply_service_filters(services, request)
 
-        # 🔍 Apply search if provided
-        search = request.query_params.get('search')
-        if search:
-            services = services.filter(
-                Q(name__icontains=search),
-                Q(description__icontains=search)
-            )
-
-        # 📄 Order by creation date
-        services = services.order_by('-created_at')
-
-        # ✅ Only paginate if ?page is in query
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(services, request)
@@ -50,7 +37,6 @@ class ServiceAPIView(APIView):
                 serializer = ServiceSerializer(page, many=True)
                 return paginator.get_paginated_response(serializer.data)
 
-        # ❌ No pagination → return all
         serializer = ServiceSerializer(services, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         

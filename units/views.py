@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.db.models.functions import Cast
 from django.db.models import CharField
 from utils.custom_permission import IsOwnerOrAdmin
-
+from .filter import apply_unit_filters
 class UnitAPIView(APIView):
     permission_classes = [IsOwnerOrAdmin]
 
@@ -29,17 +29,7 @@ class UnitAPIView(APIView):
         if not request.user.is_staff:
             units = units.filter(property__owner=request.user)
 
-        search = request.query_params.get('search')
-        if search:
-            units = units.annotate(
-                max_capacity_str=Cast('max_capacity', CharField())
-            ).filter(
-                Q(name__icontains=search) |
-                Q(property__name__icontains=search) |
-                Q(max_capacity_str__icontains=search) |
-                Q(status__icontains=search) | 
-                Q(description__icontains=search)
-            )
+        units = apply_unit_filters(units, request)
 
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
