@@ -9,6 +9,7 @@ from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_service_filters
+from rest_framework.permissions import AllowAny
 
 class ServiceAPIView(APIView):
     permission_classes = [IsOwnerOrAdmin]

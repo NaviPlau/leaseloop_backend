@@ -23,6 +23,9 @@ def create_or_update_invoice(sender, instance, **kwargs):
 
     generate_invoice_pdf(invoice)
 
+    if instance.property.owner.email == "guest@exampless.com":
+        return
+
     email = EmailMessage(
         subject="Your Booking Confirmation – LeaseLoop",
         body=render_to_string("emails/booking_confirmation.html", {"booking": instance}),

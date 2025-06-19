@@ -297,7 +297,8 @@ def reset_guest_demo_data(request):
                 continue
 
         guests = random.randint(1, unit.max_capacity)
-        services = random.sample(all_services, k=random.randint(0, 2))
+        property_services = list(Service.objects.filter(property=unit.property.id))
+        services = random.sample(property_services, k=min(len(property_services), random.randint(0, 2)))
         promo = random.choice(promocodes + [None])
         promo_id = promo.id if promo and Promocodes.objects.filter(id=promo.id, active=True).exists() else None
 
