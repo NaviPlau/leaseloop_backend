@@ -8,6 +8,7 @@ from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_promocode_filters
+from datetime import date
 
 class PromocodesAPIView(APIView):
     """
@@ -73,3 +74,34 @@ class PromocodesAPIView(APIView):
         promocode_obj.deleted = True
         promocode_obj.save()
         return Response({'message': 'Promocode successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
+    
+class ValidatePromocodeAPIView(APIView):
+    authentication_classes = [] 
+    permission_classes = []     
+
+    def post(self, request):
+        code = request.data.get("code", "").strip()
+        owner_id = request.data.get("owner_id")
+
+        if not code or not owner_id:
+            return Response({"valid": False, "error": "Code and owner_id required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            promo = Promocodes.objects.get(
+                code__iexact=code,
+                owner_id=owner_id,
+                deleted=False,
+                active=True
+            )
+        except Promocodes.DoesNotExist:
+            return Response({"valid": False, "error": "Code not found or inactive."}, status=status.HTTP_404_NOT_FOUND)
+
+        if promo.valid_until < date.today():
+            return Response({"valid": False, "error": "Promo code expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            "valid": True,
+            "discount_percent": promo.discount_percent,
+            "description": promo.description,
+            "valid_until": promo.valid_until
+        }, status=status.HTTP_200_OK)
