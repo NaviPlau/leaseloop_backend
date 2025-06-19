@@ -101,3 +101,24 @@ class ServiceAPIView(APIView):
         service.deleted = True
         service.save()
         return Response({"message": f"Service {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
+    
+    
+  
+class PublicServiceListByProperty(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        property_id = request.query_params.get('property')
+        if not property_id:
+            return Response({"error": "Property ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            services = Service.objects.filter(
+                property_id=property_id,
+                active=True,
+                deleted=False
+            )
+            serializer = ServiceSerializer(services, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Property.DoesNotExist:
+            return Response({"error": "Property not found."}, status=status.HTTP_404_NOT_FOUND)
