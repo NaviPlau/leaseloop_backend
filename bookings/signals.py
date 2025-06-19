@@ -23,19 +23,18 @@ def create_or_update_invoice(sender, instance, **kwargs):
 
     generate_invoice_pdf(invoice)
 
-    # # Send email to client with invoice attached
-    # email = EmailMessage(
-    #     subject="Your Booking Confirmation – LeaseLoop",
-    #     body=render_to_string("emails/booking_confirmation.html", {"booking": instance}),
-    #     from_email="noreply@lease-loop.com",
-    #     to=[instance.client.email],
-    # )
-    # email.content_subtype = "html"
+    email = EmailMessage(
+        subject="Your Booking Confirmation – LeaseLoop",
+        body=render_to_string("emails/booking_confirmation.html", {"booking": instance}),
+        from_email="noreply@lease-loop.com",
+        to=[instance.client.email],
+    )
+    email.content_subtype = "html"
 
-    # if invoice.pdf_file:
-    #     email.attach_file(invoice.pdf_file.path)
+    if invoice.pdf_file:
+        email.attach_file(invoice.pdf_file.path)
 
-    # email.send()
+    email.send()
 
 
 def update_active_bookings():

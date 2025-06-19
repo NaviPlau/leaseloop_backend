@@ -41,6 +41,12 @@ def apply_booking_filters(bookings, request):
                 output_field=IntegerField()
             )
         ).order_by('status_order', 'check_in')
+
+    elif filter_param in ['arrival_date', 'departure_date']:
+        bookings = bookings.filter(status='confirmed')
+        order_field = filter_map.get(filter_param, 'check_in')
+        bookings = bookings.order_by(order_field)
+
     else:
         order_field = filter_map.get(filter_param, 'check_in')
         bookings = bookings.order_by(order_field)

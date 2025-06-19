@@ -170,12 +170,14 @@ def reset_guest_demo_data(request):
         )
         
         property_image = get_random_image(PROPERTY_IMAGE_DIR)
-        if property_image:
-            PropertyImage.objects.create(
-                property=property,
-                image=property_image,
-                alt_text=f"Image for {property.name}"
-            )
+        for _ in range(random.randint(3, 7)):
+            property_image = get_random_image(PROPERTY_IMAGE_DIR)
+            if property_image:
+                PropertyImage.objects.create(
+                    property=property,
+                    image=property_image,
+                    alt_text=f"Image for {property.name}"
+                )
 
         properties.append(property)
         units_by_property[property.id] = []
@@ -198,13 +200,14 @@ def reset_guest_demo_data(request):
             unit.amenities.set(random_ids)
             
             
-            unit_image_file = get_random_image(UNIT_IMAGE_DIR)
-            if unit_image_file:
-                UnitImage.objects.create(
-                    unit=unit,
-                    image=unit_image_file,
-                    alt_text=f"Image for {unit.name}"
-                )
+            for _ in range(random.randint(3, 7)):
+                unit_image_file = get_random_image(UNIT_IMAGE_DIR)
+                if unit_image_file:
+                    UnitImage.objects.create(
+                        unit=unit,
+                        image=unit_image_file,
+                        alt_text=f"Image for {unit.name}"
+                    )
             units_by_property[property.id].append(unit)
         used_services = set()
         for _ in range(random.randint(1, 3)):
@@ -264,15 +267,21 @@ def reset_guest_demo_data(request):
         clients.append(client)
     
     promocodes = []
+    active_count = 0
     for code in ["WELCOME10", "SUMMER15", "AUTUMN20", "WINTER25", "SPRING5"]:
+        is_active = random.choice([True, False])
+        if len(promocodes) - active_count >= 3:
+            is_active = True
         promo = Promocodes.objects.create(
             code=code,
             description=f"{code} for special discount",
             valid_until=date.today() + timedelta(days=random.randint(40, 365)),
             discount_percent=random.choice([5, 10, 15, 20, 25]),
             owner_id=guest_user,
-            active = random.choice([True, False])
+            active = is_active
         )
+        if is_active:
+            active_count += 1
         promocodes.append(promo)
 
     all_services = list(Service.objects.filter(property__owner=guest_user))
@@ -290,6 +299,7 @@ def reset_guest_demo_data(request):
         guests = random.randint(1, unit.max_capacity)
         services = random.sample(all_services, k=random.randint(0, 2))
         promo = random.choice(promocodes + [None])
+        promo_id = promo.id if promo and Promocodes.objects.filter(id=promo.id, active=True).exists() else None
 
 
         serializer = BookingWriteSerializer(data={
@@ -299,7 +309,7 @@ def reset_guest_demo_data(request):
             'check_out': check_out,
             'guests_count': guests,
             'deposit_paid': random.choice([True, False]),
-            'promo_code': promo.id if promo else None,
+            'promo_code': promo_id,
             'status': random.choice(['pending', 'confirmed', 'cancelled']),
             'services': [s.id for s in services]
         })
