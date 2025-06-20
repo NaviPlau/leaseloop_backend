@@ -23,6 +23,12 @@ class BookingWriteSerializer(serializers.ModelSerializer):
         service_ids = self.initial_data.get('services', [])
         unit_id = self.initial_data.get('unit')
         promo_code_id = self.initial_data.get('promo_code')
+        client_id = self.initial_data.get('client')
+        
+        # Fetch Client
+        if client_id:
+            client = Client.objects.get(id=client_id)
+            validated_data['client'] = client
 
         check_in = validated_data.get('check_in')
         check_out = validated_data.get('check_out')

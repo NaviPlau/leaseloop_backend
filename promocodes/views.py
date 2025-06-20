@@ -100,6 +100,7 @@ class ValidatePromocodeAPIView(APIView):
             return Response({"valid": False, "error": "Promo code expired."}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
+            "id" : promo.id,
             "valid": True,
             "discount_percent": promo.discount_percent,
             "description": promo.description,
