@@ -12,14 +12,17 @@ class ClientSerializer(serializers.ModelSerializer):
         read_only_fields = ['user', 'created_at', 'updated_at']
 
     def create(self, validated_data):
+        user = validated_data.pop('user', None) 
         address_data = validated_data.pop('address')
-        address = Address.objects.create(**address_data)
-        user = self.context.get('request', None)
-        user = getattr(user, 'user', None) if user else None
-        owner = validated_data.pop('user', None)
-        user = owner or user
-        return Client.objects.create(address=address, user=user, **validated_data)
 
+        address = Address.objects.create(**address_data)
+        client = Client.objects.create(
+            **validated_data,
+            address=address,
+            user=user 
+        )
+        return client
+    
     def update(self, instance, validated_data):
         address_data = validated_data.pop('address', None)
         if address_data:

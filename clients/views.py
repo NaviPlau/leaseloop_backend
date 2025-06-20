@@ -10,6 +10,8 @@ from bookings .models import Booking
 from django.db.models import Q
 from utils.custom_pagination import CustomPageNumberPagination
 from .filter import apply_client_filters
+from rest_framework import generics
+from django.contrib.auth import get_user_model
 
 
 
@@ -87,20 +89,25 @@ class ClientAPIView(APIView):
         client_obj.save()
         return Response({'message': 'Client successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
     
-class PublicClientCreateAPIView(APIView):
+class PublicClientCreateAPIView(generics.CreateAPIView):
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
     permission_classes = [AllowAny]
 
-    def post(self, request):
+    def create(self, request, *args, **kwargs):
         owner_id = request.data.get('owner_id')
-
-        from django.contrib.auth import get_user_model
         User = get_user_model()
-        owner = None
-        if owner_id:
-            owner = get_object_or_404(User, id=owner_id)
 
-        serializer = ClientSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=owner)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not owner_id:
+            return Response({'error': 'owner_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        owner = get_object_or_404(User, id=owner_id)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=owner)
+
+        return Response({
+            'message': 'Client successfully created',
+            'client': serializer.data
+        }, status=status.HTTP_201_CREATED)
