@@ -23,6 +23,11 @@ User = get_user_model()
 from django.utils.timezone import make_aware
 import datetime
 
+from .demodata.unit_data import unit_descriptions, unit_full_names, unit_image_descriptions
+from .demodata.property_data import property_descriptions, property_names, property_image_descriptions
+from .demodata.client_data import client_first_names, client_last_names, client_postal_codes, street_bases, phone_prefixes_by_country, email_domains, client_phones
+from .demodata.address_data import country_to_cities, street_names, phone_numbers, emails
+
 from django.core.files.base import ContentFile
 
 from bookings.serializers import BookingWriteSerializer
@@ -97,34 +102,8 @@ def reset_guest_demo_data(request):
     Profile.objects.filter(user=guest_user).delete()
     UserLogo.objects.filter(user=guest_user).delete()
 
-    property_names = [
-        "Seaside Escape", "Mountain View Retreat", "City Central Flat",
-        "Lakeside Lodge", "Forest Haven", "Desert Oasis",
-        "Countryside Cottage", "Urban Loft", "Beachfront Bungalow",
-        "Mountain View Villa", "City Central Studio", "Lakeside Cottage",
-    ]
 
     unit_types = ['apartment', 'villa', 'house', 'studio', 'suite', 'cabin', 'condo', 'townhouse']
-    unit_names = ["Deluxe", "Cozy", "Modern", "Rustic", "Elegant", "Sunny", "Quiet", "Spacious"]
-    
-    street_names = ["Maple Street", "Oak Avenue", "Pine Road", "Cedar Lane", "Birch Way", "Willow Lane", "Elm Street", "Spruce Drive", "Hickory Boulevard", "Chestnut Street"]
-    country_to_cities = {
-    "Germany": ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Bremen", "Dresden", "Hannover", "Nuremberg", "Mannheim", "Karlsruhe", "Augsburg", "Wiesbaden", "Mönchengladbach", "Gelsenkirchen"],
-    "Austria": ["Vienna", "Graz", "Linz", "Salzburg", "Innsbruck", "Klagenfurt", "Villach"],
-    "Switzerland": ["Zurich", "Geneva", "Bern", "Basel", "Lausanne", "Lucerne"],
-    "Netherlands": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven", "Groningen"],
-    "Belgium": ["Brussels", "Antwerp", "Ghent", "Bruges", "Leuven"],
-    "France": ["Paris", "Lyon", "Marseille", "Nice", "Bordeaux", "Strasbourg", "Toulouse"],
-    "Italy": ["Rome", "Milan", "Florence", "Venice", "Naples", "Turin", "Bologna"],
-    "Spain": ["Madrid", "Barcelona", "Valencia", "Seville", "Malaga", "Bilbao"],
-    "Portugal": ["Lisbon", "Porto", "Coimbra", "Braga", "Funchal"],
-    "Czech Republic": ["Prague", "Brno", "Ostrava", "Plzeň", "Liberec"],
-    }
-
-    phone_numbers = [
-        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 654321",
-        "+49 89 123456", "+49 69 654321", "+49 30 987654", "+49 40 123456", "+49 89 654321", "+49 69 987654",
-        "+49 30 123456", "+49 40 654321", "+49 89 987654", "+49 69 123456", "+49 30 987654", "+49 40 654321",]
     properties = []
     units_by_property = {}
 
@@ -148,7 +127,8 @@ def reset_guest_demo_data(request):
     guest_profile.logo = guest_logo
     guest_profile.save()
 
-    for prop_name in property_names:
+    for _ in range(random.randint(4, 12)):
+        prop_name = random.choice(property_names)
         country = random.choice(list(country_to_cities.keys()))
         city = random.choice(country_to_cities[country])
         address = Address.objects.create(
@@ -164,8 +144,8 @@ def reset_guest_demo_data(request):
             owner=guest_user,
             name=prop_name,
             address=address,
-            email = f"{prop_name.lower().replace(' ', '')}@lease-loop.com",
-            description=f"{prop_name} - A perfect place for your stay.",
+            email = random.choice(emails),
+            description=random.choice(property_descriptions),
             active = random.choice([True, False])
         )
         
@@ -176,7 +156,7 @@ def reset_guest_demo_data(request):
                 PropertyImage.objects.create(
                     property=property,
                     image=property_image,
-                    alt_text=f"Image for {property.name}"
+                    alt_text=random.choice(property_image_descriptions)
                 )
 
         properties.append(property)
@@ -185,8 +165,8 @@ def reset_guest_demo_data(request):
         for _ in range(random.randint(1, 3)):
             unit = Unit.objects.create(
                 property=property,
-                name=f"{random.choice(unit_names)} {random.choice(unit_types).capitalize()}",
-                description="A wonderful unit with all modern amenities.",
+                name=random.choice(unit_full_names),
+                description=random.choice(unit_descriptions),
                 capacity=random.randint(2, 4),
                 max_capacity=random.randint(4, 6),
                 price_per_night = round(random.uniform(60, 180), 2),
@@ -206,7 +186,7 @@ def reset_guest_demo_data(request):
                     UnitImage.objects.create(
                         unit=unit,
                         image=unit_image_file,
-                        alt_text=f"Image for {unit.name}"
+                        alt_text=random.choice(unit_image_descriptions)
                     )
             units_by_property[property.id].append(unit)
         used_services = set()
@@ -224,37 +204,26 @@ def reset_guest_demo_data(request):
                         property=property
                     )
                     break
-    client_first_names = [
-    "John", "Jane", "Alice", "Bob", "Charlie", "Emily", "Liam", "Emma", "Noah", "Olivia",
-    "Ava", "Elijah", "Mia", "Sophia", "Lucas", "Amelia", "Mason", "Isabella", "Ethan", "Charlotte"
-]
 
-    client_last_names = [
-    "Smith", "Doe", "Brown", "Johnson", "Williams", "Taylor", "Anderson", "Thomas", "Moore", "Jackson",
-    "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis"
-]
-    email_domains = ["example.com", "demo.org", "mail.dev", "sample.net"]
+    
     clients = []
-    for i in range(50):
+    for _ in range(50):
         country = random.choice(list(country_to_cities.keys()))
         city = random.choice(country_to_cities[country])
         first = random.choice(client_first_names)
         last = random.choice(client_last_names)
         domain = random.choice(email_domains)
-        client_postal_codes = ["10115", "10117", "10119", "10178", "10179", "10180", "10182", "10184", "10186", "10187"]
-        email = f"{first.lower()}.{last.lower()}{random.randint(1, 99)}@{domain}"
 
-        street_base = random.choice(["Client Street", "Client Avenue", "Client Road", "Client Lane", "Client Way", "Client Boulevard", "Client Drive", "Client Place", "Client Terrace", "Client Square"])
-        street = f"{street_base} {random.randint(1, 150)}"
-        phone = f"+49 30 {random.randint(100000, 999999)}"
-
+        local_part = f"{first.lower()}.{last.lower()}{random.randint(1, 999)}"
+        email = f"{local_part}@{domain}"
+        street = f"{random.choice(street_bases)} {random.randint(1, 150)}"
         addr = Address.objects.create(
             street=street,
             house_number=str(random.randint(1, 99)),
             postal_code=random.choice(client_postal_codes),
             city=city,
             country=country,
-            phone=phone
+            phone = random.choice(client_phones)
         )
 
         client = Client.objects.create(

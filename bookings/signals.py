@@ -10,6 +10,9 @@ from django.utils import timezone
 
 @receiver(post_save, sender=Booking)
 def create_or_update_invoice(sender, instance, **kwargs):
+    if instance.status != "confirmed":
+        return
+    
     invoice, created = Invoice.objects.get_or_create(
         booking=instance,
         defaults={
