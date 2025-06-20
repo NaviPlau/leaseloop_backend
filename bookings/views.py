@@ -10,8 +10,7 @@ from .models import Booking
 from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_booking_filters
-
-# Create your views here.
+from rest_framework.generics import CreateAPIView
 
 class BookingAPIView(APIView):
     permission_classes = [IsOwnerOrAdmin]
@@ -64,3 +63,39 @@ class BookingAPIView(APIView):
         booking.deleted = True
         booking.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PublicBookingCreateAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        check_in = data.get('check_in')
+        check_out = data.get('check_out')
+        unit_id = data.get('unit')
+
+        if not all([check_in, check_out, unit_id]):
+            return Response(
+                {'error': 'Check-in, check-out and unit ID are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        overlapping = Booking.objects.filter(
+            unit_id=unit_id,
+            status__in=['pending', 'confirmed'],
+            check_in__lt=check_out,
+            check_out__gt=check_in,
+            deleted=False
+        ).exists()
+
+        if overlapping:
+            return Response(
+                {'error': 'The selected unit is no longer available.'},
+                status=status.HTTP_409_CONFLICT
+            )
+
+        serializer = BookingWriteSerializer(data=data)
+        if serializer.is_valid():
+            booking = serializer.save()
+            return Response(BookingWriteSerializer(booking).data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
