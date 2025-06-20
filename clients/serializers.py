@@ -14,7 +14,9 @@ class ClientSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         address_data = validated_data.pop('address')
         address = Address.objects.create(**address_data)
-        user = self.context['request'].user
+        user = self.context.get('request', None)
+        user = getattr(user, 'user', None) if user else None
+        validated_data.pop('user', None)  
         return Client.objects.create(address=address, user=user, **validated_data)
 
     def update(self, instance, validated_data):

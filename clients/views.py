@@ -12,6 +12,7 @@ from utils.custom_pagination import CustomPageNumberPagination
 from .filter import apply_client_filters
 
 
+
 class ClientAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -85,3 +86,13 @@ class ClientAPIView(APIView):
         client_obj.deleted = True
         client_obj.save()
         return Response({'message': 'Client successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
+    
+class PublicClientCreateAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ClientSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=None)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
