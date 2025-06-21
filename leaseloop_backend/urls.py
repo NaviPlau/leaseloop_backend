@@ -29,7 +29,6 @@ urlpatterns = [
     path('lease-loop/api/', include('promocodes.urls')),
     path('lease-loop/api/', include('bookings.urls')),
     path('lease-loop/api/', include('base_info.urls')),
-    path('lease-loop/api/', include('demo_dashboard.urls')),
     path('lease-loop/api/invoices/', include('invoices.urls')),
     path('lease-loop/api/analytics/', include("analytics.urls")),
     path('lease-loop/api/public/', include('public_booking.urls')),
