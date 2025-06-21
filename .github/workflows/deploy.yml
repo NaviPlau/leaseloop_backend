@@ -49,6 +49,10 @@ jobs:
             echo "🛑 Stopping running web container..."
             docker compose stop web || true
 
+            echo "remove the old postgress container"
+            docker volume rm leaseloop_backend_db-data || true
+            docker container rm -f leaseloop_backend-db-1 || true
+
             echo "🧹 Removing old web container..."
             docker compose rm -f web || true
 
