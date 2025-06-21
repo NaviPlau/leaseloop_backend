@@ -1,63 +1,24 @@
-unit_descriptions = [
-    "This cozy studio apartment features large windows that let in plenty of natural light. With a compact kitchen and a modern bathroom, it's ideal for solo travelers or weekend stays. A quiet retreat with everything you need in a small footprint.",
-    
-    "Step into comfort with this beautifully designed unit featuring wooden floors, soft lighting, and a spacious queen-size bed. The private balcony overlooks a serene courtyard, perfect for your morning coffee or evening wind-down.",
-    
-    "A stylish modern apartment with open-concept layout, fully equipped kitchen, and smart home features. Great for couples or professionals looking for comfort and functionality in one space. Includes fast Wi-Fi and a dedicated workspace.",
-    
-    "Rustic charm meets contemporary comfort in this cabin-style unit with exposed beams and stone accents. Relax by the fireplace after a long day of hiking or exploring nearby trails. A romantic and nature-inspired hideaway.",
-    
-    "Charming and functional, this unit includes a compact kitchenette, modern bathroom, and tasteful minimalist decor. Ideal for short stays or digital nomads looking for peace and quiet while staying connected.",
-    
-    "Sunlight floods this top-floor apartment thanks to its floor-to-ceiling windows and south-facing balcony. The space includes a king-size bed, a breakfast nook, and vibrant touches of color for a cheerful vibe.",
-    
-    "Perfect for small families or a group of friends, this unit offers two separate bedrooms, a spacious lounge area, and a full kitchen. The interior design blends comfort with practicality for a pleasant group stay.",
-    
-    "Designed for tranquility, this unit has blackout curtains, a luxury mattress, and noise-reducing insulation. Whether you're working remotely or catching up on sleep, it's a perfect environment to unwind and focus.",
-    
-    "This elegant suite includes marble countertops, stylish furniture, and a large walk-in shower. Smart TVs and built-in speakers make it easy to relax or entertain in style. Perfect for long-term guests or business travelers.",
-    
-    "A quaint and romantic studio with vintage details, soft textiles, and a view of the garden. The atmosphere is calm and welcoming — perfect for a couple’s escape or solo soul-searching weekend.",
-    
-    "This upper-level loft-style unit offers a unique blend of industrial and cozy aesthetics. Exposed brick walls and a floating staircase lead to a dreamy sleeping area overlooking the living room.",
-    
-    "Bright, airy, and beautifully furnished, this apartment features modern art, clean lines, and high-quality finishes. Located in a lively area, it's a vibrant space for creatives and city explorers.",
-    
-    "A true gem for long-term stays, this unit has a full kitchen with dishwasher, ample closet space, and a peaceful reading corner. It’s your home away from home — practical, cozy, and inspiring.",
-    
-    "With two balconies and panoramic views, this corner unit provides unbeatable natural light and a great breeze. Stylish furnishings and a comfortable layout make it both beautiful and functional.",
-    
-    "If you love color and fun, this artsy unit is for you. Bold accent walls, eclectic furniture, and playful lighting create a unique atmosphere. Great for free spirits and trendsetters.",
-    
-    "Simple, elegant, and thoughtfully designed, this unit offers a clutter-free environment with high-end essentials. A Zen-like oasis for those seeking calm and clarity during their travels.",
-    
-    "This garden-level unit opens directly onto a private patio with outdoor seating and fairy lights. Indoors, you'll find earthy tones, lush plants, and an overall inviting, nature-inspired vibe.",
-    
-    "Chic and compact, this urban studio is fully loaded with smart storage solutions, a breakfast bar, and an upscale feel. Great for short stays where every square meter counts.",
-    
-    "From the heated bathroom floors to the ergonomic furniture, this unit screams modern comfort. Ideal for digital nomads or busy couples who need calm in the chaos of the city.",
-    
-    "A peaceful and quiet space, tucked away from the street. The soft gray interior, large bath, and cozy bed make this the perfect resting place after a long day of exploring or working.",
-    
-    "This unique space is built into the attic with skylights that show the stars at night. A dreamy, romantic spot with artistic elements and an airy feeling throughout.",
-    
-    "With soundproof walls and soft ambient lighting, this unit is designed for relaxation and concentration. Includes a small library corner, perfect for book lovers and thinkers.",
-    
-    "This sunny flat includes vintage furnishings, cozy rugs, and pastel tones that create a calming atmosphere. Located near a quiet park, it’s a dream for nature lovers.",
-    
-    "Designed for functionality and style, this unit features a comfortable double bed, desk space, and high-speed internet. Whether you're working or relaxing, this space adapts to your needs.",
-    
-    "Ideal for short getaways, this snug unit features mood lighting, rain shower, and Netflix-ready TV. The space is compact but optimized for maximum comfort and convenience.",
-    
-    "Luxe meets practicality in this tastefully furnished apartment. You’ll love the walk-in wardrobe, memory foam bed, and rainfall shower — everything you need for an indulgent stay.",
-    
-    "Wake up to the sounds of birds in this countryside-style unit with floral prints, a breakfast terrace, and homemade soap in the bathroom. A perfect romantic break from the city noise.",
-    
-    "This modern city flat boasts a designer interior, mood lighting, and a full kitchen. Situated in a trendy district, it's the perfect launchpad for exploring the city’s best spots.",
-    
-    "Effortlessly elegant, this studio features soft linens, smart lighting controls, and a stylish kitchenette. Cozy but spacious enough to entertain or relax with ease.",
-    
-    "Inspired by Scandinavian minimalism, this apartment has clean lines, muted tones, and natural textures. The large windows ensure it stays bright and inviting all day long.",
+unitDescriptions = [
+  "This cozy studio apartment is more than just a place to sleep — it’s a compact sanctuary designed for rest, reflection, and renewal. Sunlight pours through generous windows, warming the inviting space and creating a peaceful ambiance. The open layout is intuitively organized with a compact yet fully functional kitchen equipped for simple cooking, a stylish modern bathroom, and a cozy bed that promises a good night's sleep. Whether you're a solo traveler on a weekend city escape or a remote worker seeking solitude and inspiration, this unit provides an ideal balance of comfort and utility. The carefully selected furnishings add warmth and charm, and small thoughtful touches such as soft linens, ambient lighting, and a small reading nook make the experience feel personal. Though small in square meters, it’s big on atmosphere — making it easy to unwind, feel grounded, and truly relax.",
+
+  "Step into a space where thoughtful design meets serenity. This beautiful unit exudes comfort from the moment you walk in, with elegant wooden floors that ground the space and soft lighting that sets a calm tone. A luxurious queen-size bed invites deep rest, while the layout flows toward a private balcony overlooking a quiet courtyard — the perfect place for your morning coffee or evening wind-down. Inside, every detail has been curated for a sense of well-being: soothing colors, high-quality fabrics, and a cozy seating area ideal for reading, writing, or enjoying a quiet meal. The bathroom features a walk-in shower with rain setting and plush towels, while the kitchenette provides all you need for light cooking. This unit is ideal for solo travelers or couples, whether you’re exploring the city, attending a retreat, or simply in need of a peaceful reset. It’s a soft landing place that feels both grounding and gently indulgent.",
+
+  "This modern apartment effortlessly combines design, technology, and livability. With an airy open-concept layout, the space invites movement and creativity, offering a fully equipped kitchen perfect for everything from simple breakfasts to full meals. The living area includes a plush sofa, smart TV, and large windows that bring in abundant light throughout the day. In one corner, a dedicated workstation with ergonomic seating and high-speed Wi-Fi makes remote work comfortable and productive. The bedroom features a luxurious mattress with high-thread-count linens, while soft curtains ensure restful nights. Smart home features allow lighting and climate to be tailored to your mood, and the bathroom includes both a rain shower and premium eco-toiletries. Whether you're here for work or leisure, this apartment adapts to your lifestyle — inviting you to cook, connect, unwind, and feel right at home in a space built with comfort and function in mind.",
+
+  "If you’ve ever dreamed of a cozy mountain retreat, this cabin-style unit brings that fantasy to life with rustic elegance and modern comforts. The open living space features exposed wooden beams, stone-accented walls, and a fireplace that radiates warmth, both literally and atmospherically. Whether you’ve spent your day hiking trails, skiing nearby slopes, or simply wandering local artisan shops, this unit welcomes you back with softness and serenity. The kitchen is small but well-stocked, perfect for making a hearty stew or hot cocoa, while the dining nook is framed by windows overlooking trees and sky. A romantic sleeping area with plush bedding invites restful sleep, and the bathroom’s rain shower is ideal for soothing tired muscles. Every design choice is meant to evoke comfort, connection, and nature — making it perfect for couples or solo adventurers. Add candles, books, and a sense of wonder, and you’ve found a hideaway that’s hard to leave.",
+
+  "Designed with the digital nomad and minimalist in mind, this smart and stylish unit offers everything you need — and nothing you don’t. Its layout is compact but intentional, featuring a sleek kitchenette with induction cooktop and microwave, a modern bathroom with walk-in shower and eco-friendly toiletries, and a sleeping area with a memory foam mattress. Soft, neutral tones and tasteful minimalist decor contribute to a sense of peace and clarity. A small desk and high-speed Wi-Fi support focused work, while sound-insulating walls ensure undisturbed rest. Natural materials and subtle lighting choices create a calming environment that encourages mindfulness and presence. Ideal for those on short stays, work trips, or personal retreats, this unit balances functionality with a grounded aesthetic. It’s a space to slow down, reconnect with your thoughts, and feel in control — even if you’re far from home.",
+  "This cozy studio apartment is more than just a place to sleep — it’s a compact sanctuary designed for rest, reflection, and renewal. Sunlight pours through generous windows, warming the inviting space and creating a peaceful ambiance. The open layout is intuitively organized with a compact yet fully functional kitchen equipped for simple cooking, a stylish modern bathroom, and a cozy bed that promises a good night's sleep. Whether you're a solo traveler on a weekend city escape or a remote worker seeking solitude and inspiration, this unit provides an ideal balance of comfort and utility. The carefully selected furnishings add warmth and charm, and small thoughtful touches such as soft linens, ambient lighting, and a small reading nook make the experience feel personal. Though small in square meters, it’s big on atmosphere — making it easy to unwind, feel grounded, and truly relax.",
+
+  "Step into a space where thoughtful design meets serenity. This beautiful unit exudes comfort from the moment you walk in, with elegant wooden floors that ground the space and soft lighting that sets a calm tone. A luxurious queen-size bed invites deep rest, while the layout flows toward a private balcony overlooking a quiet courtyard — the perfect place for your morning coffee or evening wind-down. Inside, every detail has been curated for a sense of well-being: soothing colors, high-quality fabrics, and a cozy seating area ideal for reading, writing, or enjoying a quiet meal. The bathroom features a walk-in shower with rain setting and plush towels, while the kitchenette provides all you need for light cooking. This unit is ideal for solo travelers or couples, whether you’re exploring the city, attending a retreat, or simply in need of a peaceful reset. It’s a soft landing place that feels both grounding and gently indulgent.",
+
+  "This modern apartment effortlessly combines design, technology, and livability. With an airy open-concept layout, the space invites movement and creativity, offering a fully equipped kitchen perfect for everything from simple breakfasts to full meals. The living area includes a plush sofa, smart TV, and large windows that bring in abundant light throughout the day. In one corner, a dedicated workstation with ergonomic seating and high-speed Wi-Fi makes remote work comfortable and productive. The bedroom features a luxurious mattress with high-thread-count linens, while soft curtains ensure restful nights. Smart home features allow lighting and climate to be tailored to your mood, and the bathroom includes both a rain shower and premium eco-toiletries. Whether you're here for work or leisure, this apartment adapts to your lifestyle — inviting you to cook, connect, unwind, and feel right at home in a space built with comfort and function in mind.",
+
+  "If you’ve ever dreamed of a cozy mountain retreat, this cabin-style unit brings that fantasy to life with rustic elegance and modern comforts. The open living space features exposed wooden beams, stone-accented walls, and a fireplace that radiates warmth, both literally and atmospherically. Whether you’ve spent your day hiking trails, skiing nearby slopes, or simply wandering local artisan shops, this unit welcomes you back with softness and serenity. The kitchen is small but well-stocked, perfect for making a hearty stew or hot cocoa, while the dining nook is framed by windows overlooking trees and sky. A romantic sleeping area with plush bedding invites restful sleep, and the bathroom’s rain shower is ideal for soothing tired muscles. Every design choice is meant to evoke comfort, connection, and nature — making it perfect for couples or solo adventurers. Add candles, books, and a sense of wonder, and you’ve found a hideaway that’s hard to leave.",
+
+  "Designed with the digital nomad and minimalist in mind, this smart and stylish unit offers everything you need — and nothing you don’t. Its layout is compact but intentional, featuring a sleek kitchenette with induction cooktop and microwave, a modern bathroom with walk-in shower and eco-friendly toiletries, and a sleeping area with a memory foam mattress. Soft, neutral tones and tasteful minimalist decor contribute to a sense of peace and clarity. A small desk and high-speed Wi-Fi support focused work, while sound-insulating walls ensure undisturbed rest. Natural materials and subtle lighting choices create a calming environment that encourages mindfulness and presence. Ideal for those on short stays, work trips, or personal retreats, this unit balances functionality with a grounded aesthetic. It’s a space to slow down, reconnect with your thoughts, and feel in control — even if you’re far from home.",
+
+  "Sunlight pours through floor-to-ceiling windows in this cheerful top-floor apartment, creating a radiant space that lifts the spirit and energizes the soul. The south-facing balcony invites you to enjoy morning coffee, bask in warm afternoon light, or unwind under the stars in the evening breeze. Inside, you'll find a spacious king-size bed with premium linens, a breakfast nook perfect for quiet meals or casual chats, and colorful accents that bring vibrancy and joy into every corner. The layout is both open and cozy, with seamless transitions between the sleeping area, living space, and a thoughtfully equipped kitchen that includes everything you need for daily living or weekend escapes. Ideal for creatives, solo travelers, or couples, this space is all about light, color, and comfort. Whether you're journaling by the window or stretching out on the couch with a good book, this apartment offers a delightful balance of style, sunshine, and serenity."
 ]
 
 

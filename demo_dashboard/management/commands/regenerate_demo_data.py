@@ -34,6 +34,7 @@ from bookings.serializers import BookingWriteSerializer
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 PROPERTY_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'property_images')
 UNIT_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'unit_images')
+DEMO_LOGO_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'demo_logos')
 
 def generate_valid_booking_dates(unit, max_retries=100):
     for _ in range(max_retries):
@@ -128,7 +129,7 @@ class Command(BaseCommand):
         units_by_property = {}
 
         guest_logo, _ = UserLogo.objects.get_or_create(user=guest_user)
-        random_logo_image = get_random_image(UNIT_IMAGE_DIR)
+        random_logo_image = get_random_image(DEMO_LOGO_DIR)
         if random_logo_image:
             guest_logo.logo.save(random_logo_image.name, random_logo_image, save=True)
 

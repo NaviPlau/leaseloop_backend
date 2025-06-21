@@ -8,7 +8,11 @@ venv/
 # Django
 *.log
 staticfiles/
-media/
+media/invoices
+media/logos
+media/property_images
+media/unit_images
+
 
 # VS Code
 .vscode/
