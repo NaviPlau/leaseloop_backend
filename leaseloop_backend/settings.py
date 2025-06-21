@@ -123,7 +123,6 @@ else:
     allowed_hosts = os.getenv("ALLOWED_HOSTS", "127.0.0.1") 
     ALLOWED_HOSTS = allowed_hosts.split(",")
 
-# Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
