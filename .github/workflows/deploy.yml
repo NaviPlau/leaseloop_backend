@@ -57,7 +57,7 @@ jobs:
             docker compose rm -f web || true
 
             echo "🔨 Rebuilding web service..."
-            docker compose build web
+            docker compose build --no-cache web
 
             echo "🚀 Starting updated web container..."
             docker compose up -d web
