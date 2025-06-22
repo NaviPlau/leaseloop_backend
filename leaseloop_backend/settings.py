@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 
-MEDIA_URL = "/media/"
+MEDIA_URL = "lease-loop/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Application definition
