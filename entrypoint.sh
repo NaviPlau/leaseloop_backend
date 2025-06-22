@@ -25,6 +25,9 @@ python manage.py collectstatic --noinput
 python manage.py makemigrations
 python manage.py migrate
 
+echo "Running demo data generation..."
+python manage.py regenerate_demo_data
+
 echo "Creating superuser..."
 
 python manage.py shell << END
