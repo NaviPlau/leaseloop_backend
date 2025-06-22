@@ -169,9 +169,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://lease-loop.com",
-    "http://localhost:4200",
-    "http://localhost:4201",
 ]
 
 EMAIL_BACKEND = os.getenv(
