@@ -14,6 +14,7 @@ services:
       - db
     volumes:
       - static_volume:/app/static
+      - ./media:/app/media
     restart: always
 
   db:
