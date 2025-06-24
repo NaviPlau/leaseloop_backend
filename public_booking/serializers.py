@@ -1,12 +1,8 @@
 from rest_framework import serializers
-from properties.models import Property
-from units.models import Unit
 from services.models import Service
 from bookings.models import Booking  
 from django.contrib.auth import get_user_model
 from properties.serializers import PropertySerializer
-from units.serializers import UnitSerializer 
-
 User = get_user_model()
 
 

@@ -6,7 +6,6 @@ from .models import Invoice
 from .utils import generate_invoice_pdf
 from rest_framework.views import APIView
 from .serializers import InvoiceSerializer
-from rest_framework.permissions import IsAuthenticated
 from utils.custom_pagination import CustomPageNumberPagination
 from django.db.models import Q
 from .utils import generate_invoice_number

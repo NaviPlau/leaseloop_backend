@@ -1,13 +1,11 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from .serializers import ClientSerializer
 from .models import Client
 from bookings .models import Booking
-from django.db.models import Q
 from utils.custom_pagination import CustomPageNumberPagination
 from .filter import apply_client_filters
 from rest_framework import generics
@@ -33,7 +31,6 @@ class ClientAPIView(APIView):
 
         clients = apply_client_filters(Client.objects.filter(user=request.user, deleted=False), request)
         
-
         if 'page' in request.query_params:
             paginator = CustomPageNumberPagination()
             page = paginator.paginate_queryset(clients, request)

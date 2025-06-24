@@ -8,11 +8,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from utils.custom_pagination import CustomPageNumberPagination
-from django.db.models import Q
-from django.db.models.functions import Cast
-from django.db.models import CharField
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_unit_filters
+
 class UnitAPIView(APIView):
     permission_classes = [IsOwnerOrAdmin]
 

@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from .models import Promocodes
 from .serializers import PromocodesSerializer
 from utils.custom_pagination import CustomPageNumberPagination
-from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_promocode_filters
 from datetime import date
@@ -14,7 +13,6 @@ class PromocodesAPIView(APIView):
     """
     API-Endpoint to manage promocodes.
     """
-
     permission_classes = [IsOwnerOrAdmin]
 
     def get(self, request, pk=None):
@@ -74,6 +72,7 @@ class PromocodesAPIView(APIView):
         promocode_obj.deleted = True
         promocode_obj.save()
         return Response({'message': 'Promocode successfully deleted.'}, status=status.HTTP_204_NO_CONTENT)
+    
     
 class ValidatePromocodeAPIView(APIView):
     authentication_classes = [] 

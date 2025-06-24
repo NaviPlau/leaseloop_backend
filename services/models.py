@@ -1,5 +1,5 @@
 from django.db import models
-from properties.models import Property
+
 class Service(models.Model):
     STATUS_CHOICES = [
         ('one_time', 'One Time'),

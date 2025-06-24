@@ -170,7 +170,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     'https://vms.paul-ivan.com',
-    'http://localhost:3000',
+    'http://localhost:4200',
     'http://127.0.0.1:3000',
     'https://lease-loop.com',
 ]

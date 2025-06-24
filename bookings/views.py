@@ -10,7 +10,6 @@ from .models import Booking
 from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_booking_filters
-from rest_framework.generics import CreateAPIView
 
 class BookingAPIView(APIView):
     permission_classes = [IsOwnerOrAdmin]

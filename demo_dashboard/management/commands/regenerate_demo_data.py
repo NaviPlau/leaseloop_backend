@@ -1,11 +1,7 @@
 from django.core.management.base import BaseCommand
-from rest_framework.response import Response
-from rest_framework import status
-
 from django.contrib.auth import get_user_model
 from datetime import timedelta, date
 import random
-
 from properties.models import Property, PropertyImage
 from lease_auth.models import Profile, UserLogo
 from units.models import Unit, UnitImage
@@ -18,17 +14,13 @@ from invoices.models import Invoice
 import os
 from django.core.files import File
 User = get_user_model()
-
 from django.utils.timezone import make_aware
 import datetime
-
 from ...demodata.unit_data import unit_descriptions, unit_full_names, unit_image_descriptions
 from ...demodata.property_data import property_descriptions, property_names, property_image_descriptions
 from ...demodata.client_data import client_first_names, client_last_names, client_postal_codes, street_bases, phone_prefixes_by_country, email_domains, client_phones
 from ...demodata.address_data import country_to_cities, street_names, phone_numbers, emails
-
 from django.core.files.base import ContentFile
-
 from bookings.serializers import BookingWriteSerializer
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -54,7 +46,6 @@ def generate_valid_booking_dates(unit, max_retries=100):
 
     return None, None
 
-
 def get_random_image(path: str) -> File | None:
     images = [f for f in os.listdir(path) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))]
     if not images:
@@ -70,18 +61,11 @@ def get_random_image(path: str) -> File | None:
         return django_file
 
 
-
-
-
-
-
-
 class Command(BaseCommand):
     help = "Resets and creates guest demo data"
 
     def add_arguments(self, parser):
         parser.add_argument("--test", action="store_true")
-
 
     def handle(self, *args, **options):
         self.stdout.write("Starting guest demo data reset...")
@@ -122,7 +106,6 @@ class Command(BaseCommand):
         Promocodes.objects.filter(owner_id=guest_user).delete()
         Profile.objects.filter(user=guest_user).delete()
         UserLogo.objects.filter(user=guest_user).delete()
-
 
         unit_types = ['apartment', 'villa', 'house', 'studio', 'suite', 'cabin', 'condo', 'townhouse']
         properties = []
@@ -226,7 +209,6 @@ class Command(BaseCommand):
                         )
                         break
 
-        
         clients = []
         for _ in range(50):
             country = random.choice(list(country_to_cities.keys()))
@@ -291,7 +273,6 @@ class Command(BaseCommand):
             services = random.sample(property_services, k=min(len(property_services), random.randint(0, 2)))
             promo = random.choice(promocodes + [None])
             promo_id = promo.id if promo and Promocodes.objects.filter(id=promo.id, active=True).exists() else None
-
 
             serializer = BookingWriteSerializer(data={
                 'unit': unit.id,

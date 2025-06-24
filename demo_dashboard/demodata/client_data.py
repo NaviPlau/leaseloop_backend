@@ -7,7 +7,6 @@ client_first_names = [
     "Victor", "Wren", "Xander", "Yusuf"
 ]
 
-
 client_last_names = [
     "Anderson", "Bennett", "Carter", "Davis", "Edwards", "Foster", "Garcia", "Hughes", "Irwin", "Jones",
     "Keller", "Lewis", "Mitchell", "Nelson", "Owens", "Peters", "Quinn", "Roberts", "Stewart", "Turner",

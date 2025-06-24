@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils.http import urlsafe_base64_encode
@@ -104,7 +103,6 @@ class LoginView(APIView):
         except User.DoesNotExist:
             return Response({"message": "Invalid username or password."}, status=status.HTTP_401_UNAUTHORIZED)
         
-
 
 class ForgotPasswordView(APIView):
     permission_classes = [AllowAnyExceptGuest]

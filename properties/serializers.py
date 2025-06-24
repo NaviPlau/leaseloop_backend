@@ -3,7 +3,6 @@ from .models import Property, PropertyImage
 from units.serializers import UnitSerializer
 from addresses.models import Address
 from addresses.serializers import AddressSerializer
-import json
 
 class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:

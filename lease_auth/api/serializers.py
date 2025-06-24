@@ -89,18 +89,16 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate(self, data):
         user = self.instance
 
-        # Check if old password is correct
         if not user.check_password(data['old_password']):
             raise serializers.ValidationError({"detail": "Old password is incorrect."})
 
-        # Check if new passwords match
         if data['new_password'] != data['confirm_password']:
             raise serializers.ValidationError({"detail": "Passwords must match."})
 
         return data
     
     def save(self):
-        user = self.instance  # this is the user object passed in the view
+        user = self.instance
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
@@ -144,16 +142,13 @@ class ChangeProfileDataSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop('user', {})
         address_data = validated_data.pop('address', None)
 
-        # Update profile fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        # Update user fields
         for attr, value in user_data.items():
             setattr(instance.user, attr, value)
         instance.user.save()
 
-        # Handle address create or update
         if address_data:
             if instance.address:
                 for attr, value in address_data.items():
@@ -178,7 +173,6 @@ class GetFullUserDataSerializer(serializers.Serializer):
     image = LogoSerializer(allow_null=True)
 
     def to_representation(self, user):
-        # Ensure profile exists
         profile = getattr(user, 'profile', None)
         logo = UserLogo.objects.filter(user=user).first()
         

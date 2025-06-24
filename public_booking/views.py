@@ -9,7 +9,6 @@ from units.models import Unit
 from bookings.models import Booking
 from units.serializers import UnitSerializer
 from django.core.paginator import Paginator, EmptyPage
-
 User = get_user_model()
 
 class PublicOwnerBookingPageView(APIView):

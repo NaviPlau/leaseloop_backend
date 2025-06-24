@@ -1,14 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import AllowAny
 from .models import Property , PropertyImage
 from .serializers import PropertySerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import PropertyImageSerializer
 from utils.custom_pagination import CustomPageNumberPagination
-from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_property_filters
 
@@ -112,7 +110,6 @@ class PropertyImageUploadView(APIView):
     def delete(self, request, pk):
         image = get_object_or_404(PropertyImage, pk=pk)
 
-        # Optional: check ownership
         if image.property.owner != request.user:
             return Response({'error': 'Not authorized to delete this image.'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -122,7 +119,6 @@ class PropertyImageUploadView(APIView):
     def patch(self, request, pk):
         image = get_object_or_404(PropertyImage, pk=pk)
 
-        # Optional: check ownership
         if image.property.owner != request.user:
             return Response({'error': 'Not authorized to edit this image.'}, status=status.HTTP_403_FORBIDDEN)
 

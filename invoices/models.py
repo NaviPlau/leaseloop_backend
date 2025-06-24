@@ -1,6 +1,5 @@
 from django.db import models
 from bookings.models import Booking
-from promocodes.models import Promocodes
 import os
 
 class Invoice(models.Model):

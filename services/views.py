@@ -6,7 +6,6 @@ from properties.models import Property
 from .serializers import ServiceSerializer
 from django.shortcuts import get_object_or_404
 from utils.custom_pagination import CustomPageNumberPagination
-from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_service_filters
 from rest_framework.permissions import AllowAny
@@ -104,7 +103,6 @@ class ServiceAPIView(APIView):
         return Response({"message": f"Service {pk} successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
     
     
-  
 class PublicServiceListByProperty(APIView):
     permission_classes = [AllowAny]
 

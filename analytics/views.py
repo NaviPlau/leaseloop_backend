@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from utils.custom_permission import IsOwnerOrAdmin
 from django.db.models import Sum, Count
 from bookings.models import Booking
 from services.models import Service
@@ -15,7 +15,7 @@ from django.utils.timezone import make_aware
 from django.utils.timezone import is_naive
 
 class RevenueGroupedByView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin]
     def get(self, request):
         """
         Returns a list of revenue grouped by unit or property
@@ -59,7 +59,7 @@ class RevenueGroupedByView(APIView):
         return Response(response_data)
 
 class BookingStatsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin]
 
     def get(self, request):
         """
@@ -130,7 +130,7 @@ class BookingStatsView(APIView):
         return Response(result)
 
 class ServiceSalesView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin]
 
     def get(self, request):
         """
@@ -148,8 +148,6 @@ class ServiceSalesView(APIView):
 
         start_date = parse_date(request.GET.get('from'))
         end_date = parse_date(request.GET.get('to'))
-        property_id = request.GET.get('property')
-        unit_id = request.GET.get('unit')
 
         bookings_filter = {
             'bookings__check_in__lte': end_date,
@@ -168,7 +166,7 @@ class ServiceSalesView(APIView):
         return Response(data)
 
 class CancelledBookingsStatsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin]
 
     def get(self, request):
         """

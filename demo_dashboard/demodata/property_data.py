@@ -60,7 +60,6 @@ property_descriptions = [
     "This futuristic eco-building features vertical gardens, solar panels, and water recycling systems. Designed for sustainability and conscious living.",
 ]
 
-
 property_names = [
     "Oceanview Retreat", "The Olive House", "Whispering Pines",
     "Sunset Cliff Villa", "The Willow Lodge", "Hilltop Escape",

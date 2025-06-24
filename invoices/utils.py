@@ -5,7 +5,6 @@ from django.conf import settings
 from xhtml2pdf import pisa
 import os
 from lease_auth.models import UserLogo
-import pathlib
 from django.contrib.staticfiles import finders
 
 def link_callback(uri, rel):

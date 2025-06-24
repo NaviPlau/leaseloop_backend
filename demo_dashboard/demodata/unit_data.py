@@ -21,7 +21,6 @@ unit_descriptions = [
   "Sunlight pours through floor-to-ceiling windows in this cheerful top-floor apartment, creating a radiant space that lifts the spirit and energizes the soul. The south-facing balcony invites you to enjoy morning coffee, bask in warm afternoon light, or unwind under the stars in the evening breeze. Inside, you'll find a spacious king-size bed with premium linens, a breakfast nook perfect for quiet meals or casual chats, and colorful accents that bring vibrancy and joy into every corner. The layout is both open and cozy, with seamless transitions between the sleeping area, living space, and a thoughtfully equipped kitchen that includes everything you need for daily living or weekend escapes. Ideal for creatives, solo travelers, or couples, this space is all about light, color, and comfort. Whether you're journaling by the window or stretching out on the couch with a good book, this apartment offers a delightful balance of style, sunshine, and serenity."
 ]
 
-
 unit_full_names = [
     "The Sunset Loft", "Seaside Serenity Suite", "Alpine Nest", "The Garden Escape", "Urban Oasis", "The Writer’s Studio",
     "Lakeside Hideaway", "The Amber Cabin", "Villa Solana", "The Birch House", "Modern Sky Residence", "The Velvet Studio",
