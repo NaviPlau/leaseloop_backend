@@ -18,10 +18,13 @@ class UnitSerializer(serializers.ModelSerializer):
     property_id = serializers.PrimaryKeyRelatedField(queryset=Property.objects.all(), write_only=True)
     images = UnitImageSerializer(many=True, read_only=True)
     amenities = serializers.PrimaryKeyRelatedField(queryset=Amenity.objects.all(), many=True, required=False)
+    amenity_details = AmenitySerializer(source='amenities', many=True, read_only=True)
+
     
     class Meta:
         model = Unit
         fields = '__all__'
+        extra_fields = ['amenities_ids']
 
     def create(self, validated_data):
         property_obj = validated_data.pop('property_id')
