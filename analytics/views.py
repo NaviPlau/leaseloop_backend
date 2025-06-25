@@ -35,14 +35,11 @@ class RevenueGroupedByView(APIView):
         end_date = parse_date(request.GET.get('to'))
         property_id = request.GET.get('property')
         unit_id = request.GET.get('unit')
-
         qs = Booking.objects.filter(check_in__lte=end_date, check_out__gte=start_date, status='confirmed')
-
         if property_id and property_id != 'all':
             qs = qs.filter(unit__property_id=property_id)
         if unit_id and unit_id != 'all':
             qs = qs.filter(unit_id=unit_id)
-
         if group_by == 'unit':
             qs = qs.values('unit__name').annotate(revenue=Sum('total_price')).order_by('unit__name')
             response_data = [{
@@ -55,12 +52,10 @@ class RevenueGroupedByView(APIView):
                 'name': item['property__name'] or 'Unknown',
                 'revenue': round(item['revenue'] or 0, 2)
             } for item in qs]
-
         return Response(response_data)
 
 class BookingStatsView(APIView):
     permission_classes = [IsOwnerOrAdmin]
-
     def get(self, request):
         """
         Returns a dictionary of booking stats grouped by property and unit.
@@ -94,24 +89,18 @@ class BookingStatsView(APIView):
         end_date = parse_date(request.GET.get('to'))
         property_id = request.GET.get('property')
         unit_id = request.GET.get('unit')
-
         bookings = Booking.objects.filter(check_in__lte=end_date, check_out__gte=start_date, status='confirmed')
-
         if property_id and property_id != 'all':
             bookings = bookings.filter(unit__property_id=property_id)
         if unit_id and unit_id != 'all':
             bookings = bookings.filter(unit_id=unit_id)
-
         stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-
         for booking in bookings:
             pid = booking.unit.property_id
             uid = booking.unit_id
             status = booking.status
-
             stats[pid][uid][status] += 1
             stats[pid][uid]['total'] += 1
-
         result = {
             'properties': {
                 str(pid): {
@@ -131,7 +120,6 @@ class BookingStatsView(APIView):
 
 class ServiceSalesView(APIView):
     permission_classes = [IsOwnerOrAdmin]
-
     def get(self, request):
         """
         Returns a list of 5 most sold services of the given property/unit
@@ -145,29 +133,23 @@ class ServiceSalesView(APIView):
         Returns:
             A list of dictionaries containing the name and sales of each service.
         """
-
         start_date = parse_date(request.GET.get('from'))
         end_date = parse_date(request.GET.get('to'))
-
         bookings_filter = {
             'bookings__check_in__lte': end_date,
             'bookings__check_out__gte': start_date
         }
-
         services = Service.objects.filter(**bookings_filter) \
             .annotate(sales_count=Count('bookings')) \
             .order_by('-sales_count')[:5]
-
         data = [{
             'name': service.name,
             'sales': service.sales_count
         } for service in services]
-
         return Response(data)
 
 class CancelledBookingsStatsView(APIView):
     permission_classes = [IsOwnerOrAdmin]
-
     def get(self, request):
         """
         Returns a JSON object containing the total and cancelled bookings count for each period, and cancellation rate.
@@ -199,51 +181,40 @@ class CancelledBookingsStatsView(APIView):
         group_by = request.GET.get('group_by', 'year')
         property_id = request.GET.get('property')
         unit_id = request.GET.get('unit')
-
         if not start_date or not end_date:
             return Response({'error': 'Missing date range.'}, status=400)
-
         start_date = datetime.combine(start_date, datetime.min.time())
         end_date = datetime.combine(end_date, datetime.max.time())
-
         if is_naive(start_date):
             start_date = make_aware(start_date)
         if is_naive(end_date):
             end_date = make_aware(end_date)
-
         bookings = Booking.objects.filter(check_in__range=(start_date, end_date))
-
         if property_id and property_id != 'all':
             bookings = bookings.filter(unit__property_id=property_id)
         if unit_id and unit_id != 'all':
             bookings = bookings.filter(unit_id=unit_id)
-
         if group_by == 'year':
             bookings = bookings.annotate(period=TruncYear('check_in'))
         else:
             bookings = bookings.annotate(period=TruncMonth('check_in'))
-
         grouped = bookings.values('period').annotate(
             total=Count('id'),
             cancelled=Count('id', filter=Q(status='cancelled'))
         ).order_by('period')
-
         categories = []
         total_data = []
         cancelled_data = []
         cancel_rate_data = []
-
         for entry in grouped:
             period = entry['period']
             period_key = period.strftime('%Y-%m') if group_by == 'month' else period.strftime('%Y')
             total = entry['total']
             cancelled = entry['cancelled']
-
             categories.append(period_key)
             total_data.append(total)
             cancelled_data.append(cancelled)
             cancel_rate_data.append(round((cancelled / total * 100) if total > 0 else 0, 2))
-
         return Response({
             'categories': categories,
             'series': [
