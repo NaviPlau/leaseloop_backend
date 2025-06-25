@@ -101,6 +101,15 @@ class PropertyImageUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):
+        """
+        Creates a new property image for the logged-in user.
+
+        Args:
+            request: The request object
+
+        Returns:
+            Response: The created property image in JSON format if the image was created successfully, otherwise the error messages in JSON format
+        """
         serializer = PropertyImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -108,6 +117,16 @@ class PropertyImageUploadView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, pk):
+        """
+        Deletes a property image if the user is the owner.
+
+        Args:
+            request: The request object
+            pk: The id of the image to delete
+
+        Returns:
+            Response: The message of successful deletion in JSON format if the image was deleted successfully, otherwise the error messages in JSON format
+        """
         image = get_object_or_404(PropertyImage, pk=pk)
 
         if image.property.owner != request.user:
@@ -117,6 +136,17 @@ class PropertyImageUploadView(APIView):
         return Response({'message': 'Image deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
     
     def patch(self, request, pk):
+        """
+        Updates a property image if the user is the owner.
+
+        Args:
+            request: The request object containing the data to update the image.
+            pk: The id of the property image to update.
+
+        Returns:
+            Response: The updated image in JSON format if the image was updated successfully, otherwise the error messages in JSON format.
+        """
+
         image = get_object_or_404(PropertyImage, pk=pk)
 
         if image.property.owner != request.user:
