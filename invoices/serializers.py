@@ -11,6 +11,11 @@ class InvoiceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_logo_path(self, obj):
+        """
+        Returns the path to the logo of the user who owns the property where the
+        invoice was generated. If the user does not have a logo, returns None.
+        """
+        
         try:
             user = obj.booking.property.owner
             logo = UserLogo.objects.get(user=user)

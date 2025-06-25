@@ -20,6 +20,10 @@ class Invoice(models.Model):
         return f"Invoice #{self.id} for Booking #{self.booking}"
     
     def delete(self, *args, **kwargs):
+        """
+        Deletes the Invoice instance and removes the associated PDF file
+        from the file system if it exists.
+        """
         if self.pdf_file and os.path.isfile(self.pdf_file.path):
             os.remove(self.pdf_file.path)
         super().delete(*args, **kwargs)
