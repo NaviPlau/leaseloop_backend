@@ -1,6 +1,21 @@
 from django.db.models import Q
 
 def apply_service_filters(services, request):
+    """
+    Filter services based on query parameters.
+
+    The query parameters that this function considers are:
+
+    - search: a string to search for in the service's name.
+    - filter: how to order the results and filter by type. The values are 
+      'ascending_name', 'descending_name', 'ascending_price', 'descending_price', 
+      'ascending_property_name', 'descending_property_name', 'one_time', 'per_day', 
+      or None. If None, the default ordering is by descending creation date.
+
+    :param services: The QuerySet of services to filter.
+    :param request: The request object with the query parameters.
+    :return: The filtered QuerySet of services.
+    """
     search = request.query_params.get('search')
     if search:
         services = services.filter(
