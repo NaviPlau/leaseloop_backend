@@ -1,6 +1,21 @@
 from django.db.models import Q
 
 def apply_promocode_filters(promocodes, request):
+    """
+    Filter promocodes based on query parameters.
+
+    The query parameters that this function considers are:
+
+    - search: a string to search for in the code or description.
+    - filter: how to order the results. The values are 'ascending_name', 'descending_name',
+      'ascending_code', 'descending_code', 'ascending_discount', 'descending_discount',
+      'earliest', 'latest', or None. If None, the default ordering is by code.
+
+    :param promocodes: The QuerySet of promocodes to filter.
+    :param request: The request object with the query parameters.
+    :return: The filtered QuerySet of promocodes.
+    """
+
     search = request.query_params.get('search')
     if search:
         promocodes = promocodes.filter(
