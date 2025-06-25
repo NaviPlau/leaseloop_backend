@@ -13,12 +13,9 @@ def apply_booking_filters(bookings, request):
             Q(property__address__country__icontains=search) |
             Q(property__address__street__icontains=search)
         )
-
     if not request.user.is_staff:
         bookings = bookings.filter(unit__property__owner=request.user)
-
     filter_param = request.query_params.get('filter')
-
     filter_map = {
         'client_name': 'client__first_name',
         'descending_client_name': '-client__first_name',
@@ -31,7 +28,6 @@ def apply_booking_filters(bookings, request):
         'departure_date': 'check_out',
         None: 'check_in'
     }
-
     if filter_param == 'status':
         bookings = bookings.annotate(
             status_order=Case(
@@ -41,14 +37,11 @@ def apply_booking_filters(bookings, request):
                 output_field=IntegerField()
             )
         ).order_by('status_order', 'check_in')
-
     elif filter_param in ['arrival_date', 'departure_date']:
         bookings = bookings.filter(status='confirmed')
         order_field = filter_map.get(filter_param, 'check_in')
         bookings = bookings.order_by(order_field)
-
     else:
         order_field = filter_map.get(filter_param, 'check_in')
         bookings = bookings.order_by(order_field)
-
     return bookings

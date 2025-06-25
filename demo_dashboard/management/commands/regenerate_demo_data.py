@@ -29,6 +29,22 @@ UNIT_IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'unit_images')
 DEMO_LOGO_DIR = os.path.join(BASE_DIR, 'media', 'demo', 'demo_logos')
 
 def generate_valid_booking_dates(unit, max_retries=100):
+    """
+    Generate valid booking dates for a given unit, ensuring no overlapping bookings.
+
+    This function attempts to generate valid check-in and check-out dates for a
+    specified unit by randomly selecting dates in the past or future. It checks
+    for overlapping bookings and returns the first valid date range found. If no
+    valid date range is found within the maximum number of retries, it returns None.
+
+    Args:
+        unit: The unit for which booking dates are to be generated.
+        max_retries: The maximum number of attempts to find valid booking dates.
+
+    Returns:
+        A tuple containing valid check-in and check-out dates if found, otherwise
+        (None, None) if no valid range is generated within the maximum retries.
+    """
     for _ in range(max_retries):
         if random.choice([True, False]):
             check_out = date.today() - timedelta(days=random.randint(1, 365))
@@ -36,24 +52,30 @@ def generate_valid_booking_dates(unit, max_retries=100):
         else:
             check_in = date.today() + timedelta(days=random.randint(0, 365))
             check_out = check_in + timedelta(days=random.randint(2, 7))
-
         if not Booking.objects.filter(
             unit=unit,
             check_in__lt=check_out,
             check_out__gt=check_in
         ).exists():
             return check_in, check_out
-
     return None, None
 
 def get_random_image(path: str) -> File | None:
+    """
+    Selects a random image file from the specified directory and returns it as a Django File object.
+
+    Args:
+        path (str): The directory path where image files are located.
+
+    Returns:
+        File | None: A Django File object of the randomly selected image if available, 
+        otherwise None if no image files are found.
+    """
     images = [f for f in os.listdir(path) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))]
     if not images:
         return None
-
     selected_filename = random.choice(images)
     full_path = os.path.join(path, selected_filename)
-
     with open(full_path, 'rb') as f:
         content = f.read()
         django_file = ContentFile(content)
@@ -65,18 +87,53 @@ class Command(BaseCommand):
     help = "Resets and creates guest demo data"
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the parser.
+
+        Args:
+            parser: The ArgumentParser instance to which arguments are added.
+
+        Adds a single argument, --test, which is a boolean flag. If set, the
+        command will run in test mode, which may have implications for how demo
+        data is reset.
+        """
         parser.add_argument("--test", action="store_true")
 
     def handle(self, *args, **options):
+        """
+        Resets and creates guest demo data.
+
+        This command resets all guest demo data and creates fresh data.
+
+        Args:
+            *args: Unused positional arguments.
+            *options: Dictionary of keyword arguments parsed from the command line.
+
+        Returns:
+            None
+        """
         self.stdout.write("Starting guest demo data reset...")
-
         summary = self.reset_guest_demo_data()
-
         for key, value in summary.items():
             self.stdout.write(f"{key.capitalize()}: {value}")
         self.stdout.write(self.style.SUCCESS("Demo data initialized."))
 
     def reset_guest_demo_data(self):
+        """
+        Resets and creates guest demo data.
+
+        Deletes all booking data and creates fresh guest demo data.
+
+        Returns a dictionary with the following keys:
+
+        - message: A success message
+        - properties: The number of properties created
+        - units: The number of units created
+        - clients: The number of clients created
+        - bookings: The number of bookings created
+        - services: The number of services created
+        - promocodes: The number of promo codes created
+        """
         print(f"UNIT_IMAGE_DIR: {UNIT_IMAGE_DIR}")
         print(f"PROPERTY_IMAGE_DIR: {PROPERTY_IMAGE_DIR}")
         try:
@@ -182,7 +239,6 @@ class Command(BaseCommand):
 
                 random_ids = random.sample(range(1, 21), random.randint(1, 10))
                 unit.amenities.set(random_ids)
-                
                 
                 for _ in range(random.randint(3, 7)):
                     unit_image_file = get_random_image(UNIT_IMAGE_DIR)

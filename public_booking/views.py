@@ -48,7 +48,6 @@ class PublicOwnerBookingPageView(APIView):
 
             owners = User.objects.filter(id__in=[prop.owner.id for prop in properties_page])
 
-
             serializer = PublicOwnerBookingPageSerializer(
                 {'owners': owners, 'properties': properties_page},
                 context={'request': request}
@@ -71,7 +70,19 @@ class PublicOwnerBookingPageView(APIView):
 
 class AvailableUnitsView(APIView):
     def get(self, request):
+        """
+        GET /public/bookings/available-units
 
+        Returns a list of available units for the given date range and guest count.
+
+        query parameters:
+        - check_in: date of check-in
+        - check_out: date of check-out
+        - guests: number of guests
+
+        Returns 200 OK with a list of UnitSerializer objects if successful.
+        Returns 400 BAD REQUEST if the request body does not contain the required data or if the date range is invalid.
+        """
         check_in = request.query_params.get('check_in')
         check_out = request.query_params.get('check_out')
         guest_count = request.query_params.get('guests', 1)

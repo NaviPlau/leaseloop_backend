@@ -22,6 +22,19 @@ class PropertySerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
+        """
+        Creates a new property instance.
+
+        This method takes the validated data, creates an Address instance with
+        the provided address data, assigns the logged-in user as the owner, and
+        then creates a new Property instance with the remaining data.
+
+        :param validated_data: A dictionary containing the validated data for
+        creating a new property. It should include keys like 'address', 'name',
+        'description', etc.
+        :return: The newly created property instance.
+        """
+
         address_data = validated_data.pop('address')
         address = Address.objects.create(**address_data)
         user = self.context['request'].user
@@ -29,6 +42,19 @@ class PropertySerializer(serializers.ModelSerializer):
         return Property.objects.create(address=address, **validated_data)
 
     def update(self, instance, validated_data):
+        """
+        Updates an existing property instance with validated data.
+
+        This method takes the validated data, updates the property's address
+        instance with the provided address data, and then updates the property
+        instance with the remaining data.
+
+        :param instance: The existing property instance to be updated.
+        :param validated_data: A dictionary containing the validated data for
+        updating the property. It may include keys like 'address', 'name',
+        'description', etc.
+        :return: The updated property instance.
+        """
         address_data = validated_data.pop('address', None)
         if address_data:
             for attr, value in address_data.items():
@@ -37,6 +63,17 @@ class PropertySerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
     
     def get_image_url(self, obj):
+        """
+        Returns the URL of the first image of the property if it exists, otherwise returns None.
+
+        This method is used to build the URL of the first image of the property based on the
+        request object. If the request object is not None, it appends the request's base URL
+        to the image's relative URL. If the request object is None, it returns the image's
+        relative URL as is.
+
+        :param obj: The property object for which the image URL is being generated.
+        :return: The URL of the first image of the property if it exists, otherwise None.
+        """
         first_image = obj.images.first()
         if first_image and first_image.image:
             request = self.context.get('request')

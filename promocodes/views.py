@@ -14,7 +14,6 @@ class PromocodesAPIView(APIView):
     API-Endpoint to manage promocodes.
     """
     permission_classes = [IsOwnerOrAdmin]
-
     def get(self, request, pk=None):
         if pk:
             promocode_obj = get_object_or_404(Promocodes, pk=pk)
@@ -79,12 +78,29 @@ class ValidatePromocodeAPIView(APIView):
     permission_classes = []     
 
     def post(self, request):
+        """
+        Validate a promo code for a specific owner.
+
+        This API endpoint takes a POST request with the following fields:
+        - code (string): The promo code to validate.
+        - owner_id (int): The ID of the owner associated with the promo code.
+
+        Returns:
+            Response: A JSON response with the following keys:
+            - valid (bool): Indicates whether the promo code is valid.
+            - discount_percent (float): The discount percentage of the promo code, if valid.
+            - description (string): A description of the promo code, if valid.
+            - valid_until (date): The expiry date of the promo code, if valid.
+            - error (string): An error message if the promo code is invalid.
+
+        Returns HTTP 200 if the promo code is valid, HTTP 400 if the promo code is expired
+        or if code and owner_id are not provided, and HTTP 404 if the promo code is not found
+        or inactive.
+        """
         code = request.data.get("code", "").strip()
         owner_id = request.data.get("owner_id")
-
         if not code or not owner_id:
             return Response({"valid": False, "error": "Code and owner_id required."}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             promo = Promocodes.objects.get(
                 code__iexact=code,
@@ -97,7 +113,6 @@ class ValidatePromocodeAPIView(APIView):
 
         if promo.valid_until < date.today():
             return Response({"valid": False, "error": "Promo code expired."}, status=status.HTTP_400_BAD_REQUEST)
-
         return Response({
             "id" : promo.id,
             "valid": True,

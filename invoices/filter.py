@@ -1,6 +1,24 @@
 from django.db.models import Q
 
 def apply_invoice_filters(invoices, request):
+    """
+    Applies filters to a QuerySet of invoices based on the query parameters
+    in the given request.
+
+    The query parameters that this function considers are:
+
+    - search: a string to search for in the client's first name, last name, 
+      property name, unit name, invoice number, address city, address country, 
+      or address street.
+    - filter: how to order the results. The values are 'ascending_name', 
+      'descending_name', 'ascending_date', 'descending_date', 'booking_id_lowest', 
+      'booking_id_highest', 'amount_lowest', 'amount_highest', or None. If None, 
+      the default ordering is by descending date.
+
+    :param invoices: The QuerySet of invoices to filter.
+    :param request: The request object with the query parameters.
+    :return: The filtered QuerySet of invoices.
+    """
     search = request.query_params.get('search')
     if search:
         invoices = invoices.filter(

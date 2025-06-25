@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from addresses.models import Address
+
 class Property(models.Model):
     active = models.BooleanField(default=True)
     owner = models.ForeignKey(

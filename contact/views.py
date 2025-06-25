@@ -4,19 +4,21 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .utils import send_contact_email
 
-
-
 class ContactAPIView(APIView):
   permission_classes = [IsAuthenticated]
 
   def post(self, request):
+    """
+    Sends a support ticket email with the given user's name, email, message and theme.
+    
+    Args:
+        request: The request object
+    """
     user = request.user
     user_email = user.username
     user_name = user.first_name + ' ' + user.last_name
     theme = request.data.get('theme')
     message = request.data.get('message')
-
     send_contact_email(user_email, user_name, message, theme)
-
     return Response({'success': 'Email sent successfully.'}, status=status.HTTP_200_OK)
 

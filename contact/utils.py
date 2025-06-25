@@ -1,8 +1,16 @@
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-
 def send_contact_email(user_email, user_name, message, theme):
+    """
+    Sends a support ticket email with the given user's name, email, message and theme.
+
+    Args:
+        user_email (str): The user's email address.
+        user_name (str): The user's name.
+        message (str): The user's message.
+        theme (str): The theme of the support ticket.
+    """
     context = {
         'user_name': user_name,
         'message': message,

@@ -107,6 +107,18 @@ class PublicServiceListByProperty(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        """
+        Retrieves a list of active and non-deleted services for a given property.
+
+        Args:
+            request: The request object containing query parameters.
+
+        Returns:
+            Response: A JSON response containing the list of services if the property ID is provided and valid.
+                    If the property ID is missing, returns a 400 BAD REQUEST with an error message.
+                    If the property does not exist, returns a 404 NOT FOUND with an error message.
+        """
+
         property_id = request.query_params.get('property')
         if not property_id:
             return Response({"error": "Property ID is required."}, status=status.HTTP_400_BAD_REQUEST)
