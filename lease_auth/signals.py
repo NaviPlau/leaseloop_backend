@@ -6,6 +6,19 @@ from .models import Profile, UserLogo
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+    """
+    Creates a new profile instance after a new user is created.
+
+    Listens to the post_save signal sent by the User model. If the user is created
+    (i.e. created=True), it creates a new profile instance associated with the user.
+    The profile instance is populated with some default values like a default address
+    and a default logo.
+
+    :param sender: The model that sent the post_save signal.
+    :param instance: The instance of the model that was saved.
+    :param created: A boolean indicating whether the instance was created or updated.
+    :param kwargs: Additional keyword arguments passed to the signal.
+    """
     if created:
         address = Address.objects.create(
             street='Example Street',
