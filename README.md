@@ -119,7 +119,18 @@ TODO: final version
 
 ## Contact
 
-### 👤 Personal
+### 👤 Personal - meet the developers
+
+#### Paul Ivan
+
+- [Portfolio](https://paul-ivan.com/)
+- [Drop me a mail](mailto:contact@paul-ivan.com)
+
+### 🌍 Social
+
+- [LinkedIn](https://www.linkedin.com/in/paul-ivan-a87585328/)
+
+#### Benjamin Tietz
 
 - [Portfolio](https://benjamin-tietz.com/)
 - [Drop me a mail](mailto:mail@benjamin-tietz.com)
