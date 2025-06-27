@@ -7,7 +7,6 @@ from .serializers import BookingReadSerializer, BookingWriteSerializer
 from .signals import update_active_bookings
 from utils.custom_pagination import CustomPageNumberPagination
 from .models import Booking
-from django.db.models import Q
 from utils.custom_permission import IsOwnerOrAdmin
 from .filter import apply_booking_filters
 

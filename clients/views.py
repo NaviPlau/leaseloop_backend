@@ -2,17 +2,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import AllowAny
+from utils.custom_permission import IsOwnerOrAdmin
 from .serializers import ClientSerializer
 from .models import Client
 from bookings .models import Booking
 from utils.custom_pagination import CustomPageNumberPagination
 from .filter import apply_client_filters
 from rest_framework import generics
+from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 
 class ClientAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerOrAdmin]
     def get(self, request, pk=None):
         """
         If pk is provided, returns a client object with the given id.

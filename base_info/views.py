@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from utils.custom_permission import IsOwnerOrAdmin
 from django.utils import timezone
 from bookings.models import Booking
 from units.models import Unit
@@ -9,7 +9,7 @@ from calendar import monthrange
 
 
 class DashboardStatsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin]
     def get(self, request):
         """
         Gets the dashboard statistics.
