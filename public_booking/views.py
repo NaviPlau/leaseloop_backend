@@ -9,6 +9,7 @@ from units.models import Unit
 from bookings.models import Booking
 from units.serializers import UnitSerializer
 from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Count
 User = get_user_model()
 
 class PublicOwnerBookingPageView(APIView):
@@ -35,7 +36,13 @@ class PublicOwnerBookingPageView(APIView):
             if country:
                 filters["address__country__iexact"] = country
 
-            all_properties = Property.objects.filter(**filters).order_by('id')
+            all_properties = (
+                Property.objects
+                .filter(**filters)
+                .annotate(unit_count=Count('units'))
+                .filter(unit_count__gt=1)
+                .order_by('id')
+            )
 
             page_number = request.query_params.get('page', 1)
             page_size = request.query_params.get('page_size', 10)
