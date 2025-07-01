@@ -226,12 +226,12 @@ class Command(BaseCommand):
                         alt_text=random.choice(property_image_descriptions)
                     )
 
-            properties.append(property)
-            units_by_property[property.id] = []
+            properties.append(prop)
+            units_by_property[prop.id] = []
 
             for _ in range(random.randint(1, 3)):
                 unit = Unit.objects.create(
-                    property=property,
+                    property=prop,
                     name=random.choice(unit_full_names),
                     description=random.choice(unit_descriptions),
                     capacity=random.randint(2, 4),
@@ -254,7 +254,7 @@ class Command(BaseCommand):
                             image=unit_image_file,
                             alt_text=random.choice(unit_image_descriptions)
                         )
-                units_by_property[property.id].append(unit)
+                units_by_property[prop.id].append(unit)
             used_services = set()
             for _ in range(random.randint(1, 3)):
                 for _ in range(10): 
@@ -267,7 +267,7 @@ class Command(BaseCommand):
                             name=name,
                             type=s_type,
                             price=round(random.uniform(15, 50), 2),
-                            property=property
+                            property=prop
                         )
                         break
 
