@@ -188,26 +188,32 @@ class Command(BaseCommand):
         guest_profile.logo = guest_logo
         guest_profile.save()
 
-        for _ in range(random.randint(4, 12)):
+        n = random.randint(8, 20)
+
+        active_flags = [True] * 8 + [random.choice([True, False]) for _ in range(n - 8)]
+        random.shuffle(active_flags)
+
+        for i in range(n):
             prop_name = random.choice(property_names)
             country = random.choice(list(country_to_cities.keys()))
             city = random.choice(country_to_cities[country])
+
             address = Address.objects.create(
                 street=random.choice(street_names),
                 house_number=str(random.randint(1, 99)),
                 postal_code=f"{random.randint(10000, 99999)}",
-                country = country,
-                city = city,
+                country=country,
+                city=city,
                 phone=random.choice(phone_numbers)
             )
 
-            property = Property.objects.create(
+            Property.objects.create(
                 owner=guest_user,
                 name=prop_name,
                 address=address,
-                email = random.choice(emails),
+                email=random.choice(emails),
                 description=random.choice(property_descriptions),
-                active = random.choice([True, False])
+                active=active_flags[i]  # genau hier wird gezielt gesetzt
             )
             
             property_image = get_random_image(PROPERTY_IMAGE_DIR)
