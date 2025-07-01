@@ -213,7 +213,7 @@ class Command(BaseCommand):
                 address=address,
                 email=random.choice(emails),
                 description=random.choice(property_descriptions),
-                active=active_flags[i]  # genau hier wird gezielt gesetzt
+                active=active_flags[i]
             )
             
             property_image = get_random_image(PROPERTY_IMAGE_DIR)
