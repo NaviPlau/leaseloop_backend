@@ -207,13 +207,13 @@ class Command(BaseCommand):
                 phone=random.choice(phone_numbers)
             )
 
-            Property.objects.create(
+            prop = Property.objects.create(
                 owner=guest_user,
                 name=prop_name,
                 address=address,
                 email=random.choice(emails),
                 description=random.choice(property_descriptions),
-                active=active_flags[i]
+                active=random.choice([True, False])
             )
             
             property_image = get_random_image(PROPERTY_IMAGE_DIR)
@@ -221,7 +221,7 @@ class Command(BaseCommand):
                 property_image = get_random_image(PROPERTY_IMAGE_DIR)
                 if property_image:
                     PropertyImage.objects.create(
-                        property=property,
+                        property=prop,
                         image=property_image,
                         alt_text=random.choice(property_image_descriptions)
                     )
